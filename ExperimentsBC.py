@@ -15,6 +15,23 @@ def train_dataset(dataset, config='lstm') :
     except :
         return
 
+
+def train_dataset_and_get_atn_map(dataset, encoders):
+    for e in encoders:
+        try:
+            config = configurations[e](dataset)
+            trainer = Trainer(dataset, config=config,
+                              _type=dataset.trainer_type)
+            trainer.train(dataset.train_data, dataset.dev_data, n_iters=1,
+                          save_on_metric=dataset.save_on_metric)
+            evaluator = Evaluator(dataset, trainer.model.dirname,
+                                  _type=dataset.trainer_type)
+            predictions, attentions = evaluator.evaluate(dataset.test_data,
+                                                         save_results=True)
+            return predictions, attentions
+        except:
+            return
+
 def train_dataset_on_encoders(dataset, encoders) :
     for e in encoders :
         train_dataset(dataset, e)
