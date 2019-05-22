@@ -1,3 +1,5 @@
+import sys
+sys.path.append('/data/rishabh/')
 import argparse
 parser = argparse.ArgumentParser(description='Run Preprocessing on dataset')
 parser.add_argument('--data_file', type=str, required=True)
