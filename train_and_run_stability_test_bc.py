@@ -5,6 +5,7 @@ import random
 import torch
 import pickle
 import sys
+
 sys.path.append('/data/rishabh/')
 
 parser = argparse.ArgumentParser(description='Run experiments on a dataset')
@@ -49,7 +50,8 @@ for pseudo_random_seed in seeds:
         # generate_graphs_on_encoders(dataset, encoders)
     all_outputs.append((preds, atns))
 
-file_name = "stability-outputs-" + args.seeds + ".pkl"
+file_name = "stability-outputs-" + args.seeds + str(args.attention) + str(
+    args.dataset) + str(args.encoder) + ".pkl"
 pkl_file = open(file_name, 'wb')
 pickle.dump(all_outputs, pkl_file)
 pkl_file.close()
