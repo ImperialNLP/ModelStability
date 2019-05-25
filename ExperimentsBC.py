@@ -90,7 +90,7 @@ def eval_swa_model(dataset, top_lvl_models_dir):
             'enc.th' in os.listdir(os.path.join(top_lvl_models_dir, d))]
     Model = BC.Model
     swa = Model.init_from_config(os.path.join(top_lvl_models_dir, dirs[0]))
-    swa.dirname = dirs[0]
+    swa.dirname = os.path.join(top_lvl_models_dir, dirs[0])
     for new_model_dir in dirs[1:]:
         new_model = BC.Model.init_from_config(
             os.path.join(top_lvl_models_dir, new_model_dir))
