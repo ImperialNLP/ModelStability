@@ -75,9 +75,10 @@ def run_evaluator_on_specific_model(dataset, model_path, config='lstm'):
     return evaluator
 
 
-def adding_params(net1, net2):
+def adding_params(net1, net2, alpha):
     for param1, param2 in zip(net1.parameters(), net2.parameters()):
-        param1.data += param2.data
+        param1.data *= (1.0 - alpha)
+        param1.data += param2.data * alpha
 
 
 def divide_all_params(swa, n):
@@ -91,13 +92,15 @@ def eval_swa_model(dataset, top_lvl_models_dir):
     Model = BC.Model
     swa = Model.init_from_config(os.path.join(top_lvl_models_dir, dirs[0]))
     swa.dirname = os.path.join(top_lvl_models_dir, dirs[0])
+    i = 1
     for new_model_dir in dirs[1:]:
         new_model = BC.Model.init_from_config(
             os.path.join(top_lvl_models_dir, new_model_dir))
-        adding_params(swa.encoder, new_model.encoder)
-        adding_params(swa.decoder, new_model.decoder)
-    divide_all_params(swa.encoder, len(dirs))
-    divide_all_params(swa.decoder, len(dirs))
+        adding_params(swa.encoder, new_model.encoder, 1.0 / (i+1))
+        adding_params(swa.decoder, new_model.decoder, 1.0 / (i+1))
+        i += 1
+    # divide_all_params(swa.encoder, len(dirs))
+    # divide_all_params(swa.decoder, len(dirs))
     evaluator = Evaluator(dataset, os.path.join(top_lvl_models_dir, dirs[0]),
                           _type=dataset.trainer_type)
     evaluator.model = swa
