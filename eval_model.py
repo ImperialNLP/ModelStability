@@ -38,8 +38,8 @@ encoders = ['cnn', 'lstm', 'average'] if args.encoder == 'all' else [
 
 if args.attention in ['tanh', 'all']:
     # generate_graphs_on_encoders(dataset, encoders)
-    run_evaluator_on_specific_model(dataset, args.path, args.encoder)
+    eval_swa_model(dataset, args.path)
 if args.attention in ['dot', 'all']:
     encoders = [e + '_dot' for e in encoders]
-    run_evaluator_on_specific_model(dataset, args.path, args.encoder)
+    eval_swa_model(dataset, args.path)
     # generate_graphs_on_encoders(dataset, encoders)

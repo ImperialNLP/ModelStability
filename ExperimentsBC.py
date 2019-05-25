@@ -3,6 +3,7 @@ from Transparency.Trainers.PlottingBC import generate_graphs, plot_adversarial_e
 from Transparency.configurations import configurations
 from Transparency.Trainers.TrainerBC import Trainer, Evaluator
 from Transparency.model.LR import LR
+import Transparency.model.Binary_Classification as BC
 
 def train_dataset(dataset, config='lstm') :
     try :
@@ -70,6 +71,36 @@ def run_evaluator_on_latest_model(dataset, config='lstm') :
 def run_evaluator_on_specific_model(dataset, model_path, config='lstm'):
     config = configurations[config](dataset)
     evaluator = Evaluator(dataset, model_path, _type=dataset.trainer_type)
+    _ = evaluator.evaluate(dataset.test_data, save_results=True)
+    return evaluator
+
+
+def adding_params(net1, net2):
+    for param1, param2 in zip(net1.parameters(), net2.parameters()):
+        param1.data += param2.data
+
+
+def divide_all_params(swa, n):
+    for param in swa.parameters():
+        param.data /= n
+
+
+def eval_swa_model(dataset, top_lvl_models_dir):
+    dirs = [d for d in os.listdir(top_lvl_models_dir) if
+            'enc.th' in os.listdir(os.path.join(top_lvl_models_dir, d))]
+    Model = BC.Model
+    swa = Model.init_from_config(dirs[0])
+    swa.dirname = dirs[0]
+    for new_model_dir in dirs[1:]:
+        new_model = BC.Model.init_from_config(
+            os.path.join(top_lvl_models_dir, new_model_dir))
+        adding_params(swa.encoder, new_model.encoder)
+        adding_params(swa.decoder, new_model.decoder)
+    divide_all_params(swa.encoder, len(dirs))
+    divide_all_params(swa.decoder, len(dirs))
+    evaluator = Evaluator(dataset, os.path.join(top_lvl_models_dir, dirs[0]),
+                          _type=dataset.trainer_type)
+    evaluator.model = swa
     _ = evaluator.evaluate(dataset.test_data, save_results=True)
     return evaluator
 
