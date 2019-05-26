@@ -79,12 +79,15 @@ class Model() :
         self.decoder_params = list([v for k, v in self.decoder.named_parameters() if 'attention' not in k])
 
         self.bsize = configuration['training']['bsize']
-        
+
         weight_decay = configuration['training'].get('weight_decay', 1e-5)
         self.encoder_optim = torch.optim.Adam(self.encoder_params, lr=0.001, weight_decay=weight_decay, amsgrad=True)
         self.attn_optim = torch.optim.Adam(self.attn_params, lr=0.001, weight_decay=0, amsgrad=True)
         self.decoder_optim = torch.optim.Adam(self.decoder_params, lr=0.001, weight_decay=weight_decay, amsgrad=True)
         self.adversarymulti = AdversaryMulti(decoder=self.decoder)
+
+        self.all_params = self.encoder_params + self.attn_params + self.decoder_params
+        self.all_optim = torch.optim.Adam(self.all_params, lr=0.001, weight_decay=weight_decay, amsgrad=True)
 
         pos_weight = configuration['training'].get('pos_weight', [1.0]*self.decoder.output_size)
         self.pos_weight = torch.Tensor(pos_weight).to(device)
@@ -148,13 +151,15 @@ class Model() :
                 loss += batch_data.reg_loss
 
             if train :
-                self.encoder_optim.zero_grad()
-                self.decoder_optim.zero_grad()
-                self.attn_optim.zero_grad()
+                # self.encoder_optim.zero_grad()
+                # self.decoder_optim.zero_grad()
+                # self.attn_optim.zero_grad()
+                self.all_optim.zero_grad()
                 loss.backward()
-                self.encoder_optim.step()
-                self.decoder_optim.step()
-                self.attn_optim.step()
+                # self.encoder_optim.step()
+                # self.decoder_optim.step()
+                # self.attn_optim.step()
+                self.all_optim.step()
 
             loss_total += float(loss.data.cpu().item())
         if self.swa_training:
