@@ -120,7 +120,9 @@ class Model() :
         batches = shuffle(batches)
 
         if self.swa_training:
-            self.attn_optim = SWA(self.attn_optim)
+            self.attn_optim = SWA(self.attn_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
+            self.decoder_optim = SWA(self.decoder_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
+            self.encoder_optim = SWA(self.encoder_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
 
         for n in tqdm(batches) :
             torch.cuda.empty_cache()
@@ -155,6 +157,9 @@ class Model() :
                 self.attn_optim.step()
 
             loss_total += float(loss.data.cpu().item())
+        self.attn_optim.swap_swa_sgd()
+        self.encoder_optim.swap_swa_sgd()
+        self.decoder_optim.swap_swa_sgd()
         return loss_total*bsize/N
 
     def evaluate(self, data) :
