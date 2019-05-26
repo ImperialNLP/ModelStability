@@ -99,7 +99,14 @@ class Model() :
         basepath = configuration['training'].get('basepath', 'outputs')
         self.time_str = time.ctime().replace(' ', '_')
         self.dirname = os.path.join(basepath, dirname, self.time_str)
-        
+        self.start_swa_iter = 50 
+        if self.swa_training:
+            # self.attn_optim = SWA(self.attn_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
+            # self.decoder_optim = SWA(self.decoder_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
+            # self.encoder_optim = SWA(self.encoder_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
+            self.swa_all_optim = SWA(self.all_optim, swa_start=self.start_swa_iter, swa_freq=25, swa_lr=0.001)
+
+
     @classmethod
     def init_from_config(cls, dirname, **kwargs) :
         config = json.load(open(dirname + '/config.json', 'r'))
@@ -121,13 +128,6 @@ class Model() :
 
         batches = list(range(0, N, bsize))
         batches = shuffle(batches)
-
-        if self.swa_training:
-            # self.attn_optim = SWA(self.attn_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
-            # self.decoder_optim = SWA(self.decoder_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
-            # self.encoder_optim = SWA(self.encoder_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
-            self.all_optim = SWA(self.all_optim, swa_start=3,
-                                     swa_freq=1, swa_lr=0.05)
 
         for n in tqdm(batches) :
             torch.cuda.empty_cache()
@@ -156,26 +156,29 @@ class Model() :
                 # self.encoder_optim.zero_grad()
                 # self.decoder_optim.zero_grad()
                 # self.attn_optim.zero_grad()
-                self.all_optim.zero_grad()
+                #self.all_optim.zero_grad()
+                self.swa_all_optim.zero_grad()
                 loss.backward()
                 # self.encoder_optim.step()
                 # self.decoder_optim.step()
                 # self.attn_optim.step()
-                self.all_optim.step()
+                self.swa_all_optim.step()
 
             loss_total += float(loss.data.cpu().item())
-        if self.swa_training:
+        #import ipdb; ipdb.set_trace()
+        if self.swa_training and self.swa_all_optim.param_groups[0]['step_counter'] > self.start_swa_iter:
+            print("\nSWA swapping\n")
             # self.attn_optim.swap_swa_sgd()
             # self.encoder_optim.swap_swa_sgd()
             # self.decoder_optim.swap_swa_sgd()
-            self.all_optim.swap_swa_sgd()
+            self.swa_all_optim.swap_swa_sgd()
 
 
         return loss_total*bsize/N
 
     def evaluate(self, data) :
-        self.encoder.train()
-        self.decoder.train()
+        self.encoder.eval()
+        self.decoder.eval()
         bsize = self.bsize
         N = len(data)
 
