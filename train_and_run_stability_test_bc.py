@@ -44,8 +44,6 @@ for pseudo_random_seed in seeds:
     random.seed(pseudo_random_seed)
     torch.manual_seed(pseudo_random_seed)
     preds, atns = [], []
-    encoders = ['cnn', 'lstm', 'average'] if args.encoder == 'all' else [
-        args.encoder]
     if args.attention in ['tanh', 'all']:
         preds, atns = train_dataset_and_get_atn_map(dataset, encoders)
         # generate_graphs_on_encoders(dataset, encoders)
