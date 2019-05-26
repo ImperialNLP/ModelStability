@@ -157,9 +157,11 @@ class Model() :
                 self.attn_optim.step()
 
             loss_total += float(loss.data.cpu().item())
-        self.attn_optim.swap_swa_sgd()
-        self.encoder_optim.swap_swa_sgd()
-        self.decoder_optim.swap_swa_sgd()
+        if self.swa_training:
+            self.attn_optim.swap_swa_sgd()
+            self.encoder_optim.swap_swa_sgd()
+            self.decoder_optim.swap_swa_sgd()
+
         return loss_total*bsize/N
 
     def evaluate(self, data) :
