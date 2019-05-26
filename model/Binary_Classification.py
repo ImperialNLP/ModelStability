@@ -92,7 +92,7 @@ class Model() :
         pos_weight = configuration['training'].get('pos_weight', [1.0]*self.decoder.output_size)
         self.pos_weight = torch.Tensor(pos_weight).to(device)
         self.criterion = nn.BCEWithLogitsLoss(reduction='none').to(device)
-        self.swa_training = False
+        self.swa_training = True
 
         import time
         dirname = configuration['training']['exp_dirname']
