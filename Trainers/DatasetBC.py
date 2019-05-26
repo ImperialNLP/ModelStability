@@ -76,6 +76,8 @@ class Dataset() :
             'pr_auc' : 'pr_auc'
         }
 
+        self.swa = args.swa
+
         self.bsize = 32
         if args is not None and hasattr(args, 'output_dir') :
             self.basepath = args.output_dir

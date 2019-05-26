@@ -20,7 +20,8 @@ def generate_basic_config(dataset, exp_name) :
             'weight_decay' : 1e-5,
             'pos_weight' : dataset.pos_weight if hasattr(dataset, 'pos_weight') else None,
             'basepath' : dataset.basepath if hasattr(dataset, 'basepath') else 'outputs',
-            'exp_dirname' : os.path.join(dataset.name, exp_name)
+            'exp_dirname' : os.path.join(dataset.name, exp_name),
+            'swa': dataset.swa
         }
     }
 
