@@ -76,7 +76,8 @@ class Dataset() :
             'pr_auc' : 'pr_auc'
         }
 
-        self.swa = args.swa
+        swa_settings = eval(args.swa)
+        self.swa_settings = swa_settings
 
         self.bsize = 32
         if args is not None and hasattr(args, 'output_dir') :

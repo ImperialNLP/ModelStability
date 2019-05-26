@@ -18,8 +18,8 @@ parser.add_argument('--attention', type=str, choices=['tanh', 'dot', 'all'],
                     required=True)
 parser.add_argument('--seeds', nargs='?', default='[2,9001,2**18]',
                     help='Seeds for runs.')
-parser.add_argument('--swa', type=int, default=0,
-                        help='Enable Stochastic Weighted Averaging.')
+parser.add_argument('--seeds', nargs='?', default='[0,50,25,0.001]',
+                        help='Enable Stochastic Weighted Averaging (active, start_val, freq, learning-rate).')
 
 args, extras = parser.parse_known_args()
 args.extras = extras
@@ -36,6 +36,7 @@ encoders = ['cnn', 'lstm', 'average'] if args.encoder == 'all' else [
     args.encoder]
 
 seeds = eval(args.seeds)
+
 all_outputs = []
 for pseudo_random_seed in seeds:
     os.environ['PYTHONHASHSEED'] = str(pseudo_random_seed)
@@ -52,8 +53,14 @@ for pseudo_random_seed in seeds:
         # generate_graphs_on_encoders(dataset, encoders)
     all_outputs.append((preds, atns))
 
-file_name = "stability-outputs-" + args.seeds + str(args.attention) + str(
-    args.dataset) + str(args.encoder) + ".pkl"
+swa_settings = eval(args.swa)
+if swa_settings[0]:
+    file_name = "stability-outputs-swa-" + args.seeds + str(args.attention) + str(
+        args.dataset) + str(args.encoder) + ".pkl"
+else:
+    file_name = "stability-outputs-og-" + args.seeds + str(args.attention) + str(
+        args.dataset) + str(args.encoder) + ".pkl"
+
 pkl_file = open(file_name, 'wb')
 pickle.dump(all_outputs, pkl_file)
 pkl_file.close()
