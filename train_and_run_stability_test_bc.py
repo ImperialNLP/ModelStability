@@ -18,6 +18,8 @@ parser.add_argument('--attention', type=str, choices=['tanh', 'dot', 'all'],
                     required=True)
 parser.add_argument('--seeds', nargs='?', default='[2,9001,2**18]',
                     help='Seeds for runs.')
+parser.add_argument('--swa', type=int, default=0,
+                        help='Enable Stochastic Weighted Averaging.')
 
 args, extras = parser.parse_known_args()
 args.extras = extras
