@@ -3,13 +3,13 @@ import pickle
 from scipy.stats import entropy
 import numpy as np
 
-dataset = 'sst'
+dataset = 'diab'
 model_info = 'lstm+tanh'
 
 dist_mtxs = pickle.load(
     open(dataset + model_info + '-distance-matrices.pkl', 'rb'))
 
-num_models = 2
+num_models = 10
 dist_mtxs = dist_mtxs[:num_models]
 
 combins = list(combinations(range(num_models), 2))

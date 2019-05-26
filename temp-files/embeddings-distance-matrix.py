@@ -4,7 +4,7 @@ import numpy as np
 
 from scipy.spatial import distance_matrix
 
-dataset = 'sst'
+dataset = 'diab'
 model_info = 'lstm+tanh'
 
 dirname = '../outputs/' + dataset + '/' + model_info
@@ -15,7 +15,7 @@ dirs = [d for d in os.listdir(dirname) if
 distance_matrices = []
 for dir in dirs:
     pth = os.path.join(dirname, dir, 'enc.th')
-    enc = torch.load(pth, map_location='cpu')
+    enc = torch.load(pth)
     enc = enc['embedding.weight'].cpu().numpy()
     print(enc.shape)
     distance_matrices.append(
