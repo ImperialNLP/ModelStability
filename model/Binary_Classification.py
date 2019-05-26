@@ -156,16 +156,21 @@ class Model() :
                 loss += batch_data.reg_loss
 
             if train :
-                # self.encoder_optim.zero_grad()
-                # self.decoder_optim.zero_grad()
-                # self.attn_optim.zero_grad()
-                #self.all_optim.zero_grad()
-                self.swa_all_optim.zero_grad()
-                loss.backward()
-                # self.encoder_optim.step()
-                # self.decoder_optim.step()
-                # self.attn_optim.step()
-                self.swa_all_optim.step()
+                if self.swa_settings[0]:
+                    self.swa_all_optim.zero_grad()
+                    loss.backward()
+                    self.swa_all_optim.step()
+
+                else:
+                    # self.encoder_optim.zero_grad()
+                    # self.decoder_optim.zero_grad()
+                    # self.attn_optim.zero_grad()
+                    self.all_optim.zero_grad()
+                    loss.backward()
+                    # self.encoder_optim.step()
+                    # self.decoder_optim.step()
+                    # self.attn_optim.step()
+                    self.all_optim.step()
 
             loss_total += float(loss.data.cpu().item())
         # import ipdb; ipdb.set_trace()
