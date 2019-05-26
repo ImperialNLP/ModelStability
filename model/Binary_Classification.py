@@ -10,6 +10,7 @@ import torch.nn as nn
 from allennlp.common import Params
 from sklearn.utils import shuffle
 from tqdm import tqdm
+from torchcontrib.optim import SWA
 
 from Transparency.model.modules.Decoder import AttnDecoder
 from Transparency.model.modules.Encoder import Encoder
@@ -88,6 +89,7 @@ class Model() :
         pos_weight = configuration['training'].get('pos_weight', [1.0]*self.decoder.output_size)
         self.pos_weight = torch.Tensor(pos_weight).to(device)
         self.criterion = nn.BCEWithLogitsLoss(reduction='none').to(device)
+        self.swa_training = True
 
         import time
         dirname = configuration['training']['exp_dirname']
@@ -116,6 +118,9 @@ class Model() :
 
         batches = list(range(0, N, bsize))
         batches = shuffle(batches)
+
+        if self.swa_training:
+            self.attn_optim = SWA(self.attn_optim)
 
         for n in tqdm(batches) :
             torch.cuda.empty_cache()
