@@ -164,14 +164,14 @@ class Model() :
                         and self.swa_all_optim.param_groups[0]['step_counter'] % \
                         self.swa_settings[2] == 0:
 
-                        p = self.swa_all_optim.param_groups[0]['params'][-2]
-                        param_state = self.swa_all_optim.state[p]
-                        if 'swa_buffer' in param_state:
-                            buf = np.squeeze(param_state['swa_buffer'].cpu().numpy())
-                            cur_state = np.squeeze(p.data.cpu().numpy())
-                            d_correlation = distance_correlation(buf, cur_state)
-                            if d_correlation > 0.9:
-                                self.swa_all_optim.update_swa()
+                        # p = self.swa_all_optim.param_groups[0]['params'][-2]
+                        # param_state = self.swa_all_optim.state[p]
+                        # if 'swa_buffer' in param_state:
+                        #     buf = np.squeeze(param_state['swa_buffer'].cpu().numpy())
+                        #     cur_state = np.squeeze(p.data.cpu().numpy())
+                        #     d_correlation = distance_correlation(buf, cur_state)
+                        #     if d_correlation > 0.9:
+                        self.swa_all_optim.update_swa()
 
                     self.swa_all_optim.zero_grad()
                     loss.backward()
