@@ -17,7 +17,7 @@ parser.add_argument('--encoder', type=str,
                     choices=['cnn', 'lstm', 'average', 'all'], required=True)
 parser.add_argument('--attention', type=str, choices=['tanh', 'dot', 'all'],
                     required=True)
-parser.add_argument('--seeds', nargs='?', default='[2,9001,2**18]',
+parser.add_argument('--seeds', nargs='?', default='[2]',
                     help='Seeds for runs.')
 parser.add_argument('--swa', nargs='?', default='[0,50,25,0.001]',
                     help='Enable Stochastic Weighted Averaging (active, start_val, freq, learning-rate).')

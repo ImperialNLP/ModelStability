@@ -61,6 +61,12 @@ class BatchHolder() :
         attn += inv_l[:, None]
         return torch.Tensor(attn).to(device)
 
+class BatchHolderIndentity(BatchHolder):
+    def __init__(self, data, lengths, masks) :
+        self.seq = data
+        self.lengths = lengths
+        self.masks = masks
+
 class BatchMultiHolder() :
     def __init__(self, **holders) :
         for name, value in holders.items() :

@@ -15,7 +15,7 @@ from torchcontrib.optim import SWA
 from Transparency.model.modules.Decoder import AttnDecoder
 from Transparency.model.modules.Encoder import Encoder
 
-from .modelUtils import BatchHolder, get_sorting_index_with_noise_from_lengths
+from .modelUtils import BatchHolder, get_sorting_index_with_noise_from_lengths, BatchHolderIndentity
 from .modelUtils import jsd as js_divergence
 
 file_name = os.path.abspath(__file__)
@@ -92,7 +92,8 @@ class Model() :
         pos_weight = configuration['training'].get('pos_weight', [1.0]*self.decoder.output_size)
         self.pos_weight = torch.Tensor(pos_weight).to(device)
         self.criterion = nn.BCEWithLogitsLoss(reduction='none').to(device)
-        self.swa_settings = configuration['training']['swa']
+        # self.swa_settings = configuration['training']['swa']
+        self.swa_settings = [0,0,0,0]
 
         import time
         dirname = configuration['training']['exp_dirname']
@@ -472,10 +473,11 @@ class Model() :
 
         return adverse_output, adverse_attn, adverse_X
 
-    def __call__(self, batch_data):
-        batch_holder = BatchHolder(batch_data)
+    def predict(self, batch_data, lengths, masks):
+        # import ipdb; ipdb.set_trace()
+        batch_holder = BatchHolderIndentity(batch_data, lengths, masks)
         self.encoder(batch_holder)
         self.decoder(batch_holder)
         batch_holder.predict = torch.sigmoid(batch_holder.predict)
-        predict = batch_holder.predict.cpu().data.numpy()
+        predict = batch_holder.predict
         return predict

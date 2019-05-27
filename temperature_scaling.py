@@ -36,39 +36,40 @@ class ModelWithTemperature(nn.Module):
         We're going to set it to optimize NLL.
         valid_loader (DataLoader): validation set loader
         """
-        self.cuda()
-        nll_criterion = nn.CrossEntropyLoss().cuda()
-        ece_criterion = _ECELoss().cuda()
+        # self.cuda()
+        nll_criterion = nn.CrossEntropyLoss()
+        ece_criterion = _ECELoss()
 
         # First: collect all the logits and labels for the validation set
         logits_list = []
         labels_list = []
         with torch.no_grad():
-            for input, label in valid_loader:
+            for input, lengths, masks, label in valid_loader:
                 # input = torch.Tensor(input).to(device)
-                logits = self.model(input)
+                logits = self.model.predict(input, lengths, masks)
                 logits_list.append(logits)
                 labels_list.append(label)
-            logits = torch.cat(logits_list).cuda()
-            labels = torch.cat(labels_list).cuda()
-
+            logits = torch.cat(logits_list).cpu()
+            labels = torch.cat(labels_list).cpu()
         # Calculate NLL and ECE before temperature scaling
-        before_temperature_nll = nll_criterion(logits, labels).item()
-        before_temperature_ece = ece_criterion(logits, labels).item()
+        import ipdb; ipdb.set_trace()
+        llogits = torch.tensor([[logit[0], 1 - logit[0]] for logit in logits])
+        before_temperature_nll = nll_criterion(llogits, labels).item()
+        before_temperature_ece = ece_criterion(llogits, labels).item()
         print('Before temperature - NLL: %.3f, ECE: %.3f' % (before_temperature_nll, before_temperature_ece))
 
         # Next: optimize the temperature w.r.t. NLL
         optimizer = optim.LBFGS([self.temperature], lr=0.01, max_iter=50)
 
         def eval():
-            loss = nll_criterion(self.temperature_scale(logits), labels)
+            loss = nll_criterion(self.temperature_scale(llogits), labels)
             loss.backward()
             return loss
         optimizer.step(eval)
 
         # Calculate NLL and ECE after temperature scaling
-        after_temperature_nll = nll_criterion(self.temperature_scale(logits), labels).item()
-        after_temperature_ece = ece_criterion(self.temperature_scale(logits), labels).item()
+        after_temperature_nll = nll_criterion(self.temperature_scale(llogits), labels).item()
+        after_temperature_ece = ece_criterion(self.temperature_scale(llogits), labels).item()
         print('Optimal temperature: %.3f' % self.temperature.item())
         print('After temperature - NLL: %.3f, ECE: %.3f' % (after_temperature_nll, after_temperature_ece))
 

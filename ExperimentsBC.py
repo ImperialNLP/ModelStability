@@ -1,3 +1,4 @@
+import torchtext
 from Transparency.common_code.common import *
 from Transparency.Trainers.PlottingBC import generate_graphs, plot_adversarial_examples, plot_logodds_examples
 from Transparency.configurations import configurations
@@ -6,6 +7,9 @@ from Transparency.model.LR import LR
 import Transparency.model.Binary_Classification as BC
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data import DataLoader
+from torch.utils.data import TensorDataset
+from temperature_scaling import ModelWithTemperature
+from model.modelUtils import BatchHolder
 
 def train_dataset(dataset, config='lstm') :
     try :
@@ -35,24 +39,22 @@ def train_dataset_and_get_atn_map(dataset, encoders):
 def train_dataset_and_temp_scale(dataset, encoders):
     for e in encoders:
         config = configurations[e](dataset)
-        trainer = Trainer(dataset, config=config,
-                          _type=dataset.trainer_type)
-        trainer.train(dataset.train_data, dataset.dev_data, n_iters=8,
-                      save_on_metric=dataset.save_on_metric)
-
-        print("Evaluate before temp scaling..")
-        evaluator = Evaluator(dataset, trainer.model.dirname,
-                              _type=dataset.trainer_type)
-        predictions, attentions = evaluator.evaluate(dataset.test_data,
-                                                     save_results=True)
+        latest_model = get_latest_model(os.path.join(config['training']['basepath'],
+                                                     config['training'][
+                                                         'exp_dirname']))
+        evaluator = Evaluator(dataset, latest_model, _type=dataset.trainer_type)
+        _ = evaluator.evaluate(dataset.test_data, save_results=True)
 
         print("Temperature-scaling..")
-        from temperature_scaling import ModelWithTemperature
-
         orig_model = evaluator.model
-        valid_loader = DataLoader(dataset.dev_data, pin_memory=True, batch_size=config['training']['bsize'],
-                                               sampler=SubsetRandomSampler(dataset.dev_data))
+        dev_x_tensor = BatchHolder(dataset.dev_data.X).seq
+        dev_x_tensor_lengths = BatchHolder(dataset.dev_data.X).lengths
+        dev_x_tensor_masks = BatchHolder(dataset.dev_data.X).masks
+        valid_dataset = TensorDataset(dev_x_tensor, dev_x_tensor_lengths, dev_x_tensor_masks, torch.from_numpy(
+            np.array(dataset.dev_data.y)))
+        valid_loader = DataLoader(valid_dataset, batch_size=1)
 
+        # import ipdb; ipdb.set_trace()
         scaled_model = ModelWithTemperature(orig_model)
         scaled_model.set_temperature(valid_loader)
 
