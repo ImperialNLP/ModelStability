@@ -2,24 +2,12 @@ import argparse
 import random
 import sys
 
+from train_and_run_stability_test_bc import get_parser
+
 sys.path.append('/data/rishabh/')
 sys.path.append('/Users/apple/MEngProject/')
 
-parser = argparse.ArgumentParser(description='Run experiments on a dataset')
-parser.add_argument('--dataset', type=str, required=True)
-parser.add_argument("--data_dir", type=str, required=True)
-parser.add_argument("--output_dir", type=str)
-parser.add_argument('--encoder', type=str,
-                    choices=['cnn', 'lstm', 'average', 'all'], required=True)
-parser.add_argument('--attention', type=str, choices=['tanh', 'dot', 'all'],
-                    required=True)
-parser.add_argument('--seeds', nargs='?', default='[2,9001,2**18]',
-                    help='Seeds for runs.')
-parser.add_argument('--swa', nargs='?', default='[0,0,0,0]',
-                    help='Enable Stochastic Weighted Averaging (active, start_val, freq, learning-rate).')
-parser.add_argument("--temp", type=float, default=1)
-
-args, extras = parser.parse_known_args()
+args, extras = get_parser().parse_known_args()
 args.extras = extras
 
 from Transparency.Trainers.DatasetBC import *
