@@ -4,6 +4,8 @@ from Transparency.configurations import configurations
 from Transparency.Trainers.TrainerBC import Trainer, Evaluator
 from Transparency.model.LR import LR
 import Transparency.model.Binary_Classification as BC
+from torch.utils.data.sampler import SubsetRandomSampler
+from torch.utils.data import DataLoader
 
 def train_dataset(dataset, config='lstm') :
     try :
@@ -29,6 +31,30 @@ def train_dataset_and_get_atn_map(dataset, encoders):
         predictions, attentions = evaluator.evaluate(dataset.test_data,
                                                      save_results=True)
         return predictions, attentions
+
+def train_dataset_and_temp_scale(dataset, encoders):
+    for e in encoders:
+        config = configurations[e](dataset)
+        trainer = Trainer(dataset, config=config,
+                          _type=dataset.trainer_type)
+        trainer.train(dataset.train_data, dataset.dev_data, n_iters=8,
+                      save_on_metric=dataset.save_on_metric)
+
+        print("Evaluate before temp scaling..")
+        evaluator = Evaluator(dataset, trainer.model.dirname,
+                              _type=dataset.trainer_type)
+        predictions, attentions = evaluator.evaluate(dataset.test_data,
+                                                     save_results=True)
+
+        print("Temperature-scaling..")
+        from temperature_scaling import ModelWithTemperature
+
+        orig_model = evaluator.model
+        valid_loader = DataLoader(dataset.dev_data, pin_memory=True, batch_size=config['training']['bsize'],
+                                               sampler=SubsetRandomSampler(dataset.dev_data))
+
+        scaled_model = ModelWithTemperature(orig_model)
+        scaled_model.set_temperature(valid_loader)
 
 def train_dataset_on_encoders(dataset, encoders) :
     for e in encoders :
