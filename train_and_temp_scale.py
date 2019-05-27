@@ -1,9 +1,5 @@
 import argparse
-import numpy as np
-import os
 import random
-import torch
-import pickle
 import sys
 
 sys.path.append('/data/rishabh/')
@@ -17,9 +13,9 @@ parser.add_argument('--encoder', type=str,
                     choices=['cnn', 'lstm', 'average', 'all'], required=True)
 parser.add_argument('--attention', type=str, choices=['tanh', 'dot', 'all'],
                     required=True)
-parser.add_argument('--seeds', nargs='?', default='[2]',
+parser.add_argument('--seeds', nargs='?', default='[2,9001,2**18]',
                     help='Seeds for runs.')
-parser.add_argument('--swa', nargs='?', default='[0,50,25,0.001]',
+parser.add_argument('--swa', nargs='?', default='[0,0,0,0]',
                     help='Enable Stochastic Weighted Averaging (active, start_val, freq, learning-rate).')
 parser.add_argument("--temp", type=float, default=1)
 

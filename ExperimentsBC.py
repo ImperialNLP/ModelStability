@@ -39,26 +39,27 @@ def train_dataset_and_get_atn_map(dataset, encoders):
 def train_dataset_and_temp_scale(dataset, encoders):
     for e in encoders:
         config = configurations[e](dataset)
-        latest_model = get_latest_model(os.path.join(config['training']['basepath'],
-                                                     config['training'][
-                                                         'exp_dirname']))
-        evaluator = Evaluator(dataset, latest_model, _type=dataset.trainer_type)
-        _ = evaluator.evaluate(dataset.test_data, save_results=True)
+        trainer = Trainer(dataset, config=config,
+                          _type=dataset.trainer_type)
+        trainer.train(dataset.train_data, dataset.dev_data, n_iters=8,
+                      save_on_metric=dataset.save_on_metric)
+        evaluator = Evaluator(dataset, trainer.model.dirname,
+                              _type=dataset.trainer_type)
 
         print("Temperature-scaling..")
         orig_model = evaluator.model
         dev_x_tensor = BatchHolder(dataset.dev_data.X).seq
         dev_x_tensor_lengths = BatchHolder(dataset.dev_data.X).lengths
         dev_x_tensor_masks = BatchHolder(dataset.dev_data.X).masks
-        valid_dataset = TensorDataset(dev_x_tensor, dev_x_tensor_lengths, dev_x_tensor_masks, torch.from_numpy(
-            np.array(dataset.dev_data.y)))
+        valid_dataset = TensorDataset(dev_x_tensor, dev_x_tensor_lengths,
+                                      dev_x_tensor_masks, torch.from_numpy(
+                np.array(dataset.dev_data.y)))
         valid_loader = DataLoader(valid_dataset, batch_size=1)
 
-        # import ipdb; ipdb.set_trace()
         scaled_model = ModelWithTemperature(orig_model)
         scaled_model.set_temperature(valid_loader)
 
-def train_dataset_on_encoders(dataset, encoders) :
+def train_dataset_on_encoders(dataset, encoders):
     for e in encoders :
         train_dataset(dataset, e)
         run_experiments_on_latest_model(dataset, e)
