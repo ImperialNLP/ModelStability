@@ -19,7 +19,7 @@ parser.add_argument('--attention', type=str, choices=['tanh', 'dot', 'all'],
 parser.add_argument('--seeds', nargs='?', default='[2,9001,2**18]',
                     help='Seeds for runs.')
 parser.add_argument('--swa', nargs='?', default='[0,50,25,0.001]',
-                        help='Enable Stochastic Weighted Averaging (active, start_val, freq, learning-rate).')
+                    help='Enable Stochastic Weighted Averaging (active, start_val, freq, learning-rate).')
 
 args, extras = parser.parse_known_args()
 args.extras = extras
@@ -55,10 +55,12 @@ for pseudo_random_seed in seeds:
 
 swa_settings = eval(args.swa)
 if swa_settings[0]:
-    file_name = "stability-outputs-swa-" + args.seeds + str(args.attention) + str(
+    file_name = "stability-outputs-swa-" + args.swa + args.seeds + str(
+        args.attention) + str(
         args.dataset) + str(args.encoder) + ".pkl"
 else:
-    file_name = "stability-outputs-og-" + args.seeds + str(args.attention) + str(
+    file_name = "stability-outputs-og-" + args.seeds + str(
+        args.attention) + str(
         args.dataset) + str(args.encoder) + ".pkl"
 
 pkl_file = open(file_name, 'wb')
