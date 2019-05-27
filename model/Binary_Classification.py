@@ -471,3 +471,11 @@ class Model() :
         adverse_attn = [x for y in adverse_attn for x in y]
 
         return adverse_output, adverse_attn, adverse_X
+
+    def __call__(self, batch_data):
+        batch_holder = BatchHolder(batch_data)
+        self.encoder(batch_holder)
+        self.decoder(batch_holder)
+        batch_holder.predict = torch.sigmoid(batch_holder.predict)
+        predict = batch_holder.predict.cpu().data.numpy()
+        return predict

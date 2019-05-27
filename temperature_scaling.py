@@ -2,6 +2,7 @@ import torch
 from torch import nn, optim
 from torch.nn import functional as F
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 class ModelWithTemperature(nn.Module):
     """
@@ -44,7 +45,7 @@ class ModelWithTemperature(nn.Module):
         labels_list = []
         with torch.no_grad():
             for input, label in valid_loader:
-                input = input.cuda()
+                # input = torch.Tensor(input).to(device)
                 logits = self.model(input)
                 logits_list.append(logits)
                 labels_list.append(label)
