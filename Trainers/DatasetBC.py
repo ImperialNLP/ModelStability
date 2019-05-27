@@ -81,6 +81,7 @@ class Dataset() :
 
         swa_settings = eval(args.swa)
         self.swa_settings = swa_settings
+        self.temperature = args.temp
 
         self.bsize = 32
         if args is not None and hasattr(args, 'output_dir') :

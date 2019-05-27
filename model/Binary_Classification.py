@@ -101,6 +101,8 @@ class Model() :
         self.time_str = time.ctime().replace(' ', '_')
         self.dirname = os.path.join(basepath, dirname, self.time_str)
 
+        self.temperature = configuration['training']['temperature']
+
         if self.perf_swa:
             self.swa_settings = configuration['training']['swa']
             # self.attn_optim = SWA(self.attn_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
@@ -148,7 +150,7 @@ class Model() :
             if len(batch_target.shape) == 1 : #(B, )
                 batch_target = batch_target.unsqueeze(-1) #(B, 1)
 
-            bce_loss = self.criterion(batch_data.predict, batch_target)
+            bce_loss = self.criterion(batch_data.predict / self.temperature, batch_target)
             weight = batch_target * self.pos_weight + (1 - batch_target)
             bce_loss = (bce_loss * weight).mean(1).sum()
 
