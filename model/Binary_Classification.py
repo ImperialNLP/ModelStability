@@ -166,8 +166,8 @@ class Model() :
 
                         p = self.swa_all_optim.param_groups[0]['params'][-2]
                         param_state = self.swa_all_optim.state[p]
+                        import ipdb; ipdb.set_trace()
                         if 'swa_buffer' in param_state:
-                            import ipdb; ipdb.set_trace()
                             buf = np.squeeze(param_state['swa_buffer'].cpu().numpy())
                             cur_state = np.squeeze(p.data.cpu().numpy())
                             d_correlation = distance_correlation(buf, cur_state)
