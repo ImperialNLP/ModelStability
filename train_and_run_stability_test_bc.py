@@ -19,10 +19,11 @@ def get_parser():
                         required=True)
     parser.add_argument('--seeds', nargs='?', default='[2,9001,2**18]',
                         help='Seeds for runs.')
-    parser.add_argument('--swa', nargs='?', default='[0,0,0,0]',
-                        help='Enable Stochastic Weighted Averaging (active, start_val, freq, learning-rate).')
+    parser.add_argument('--swa', nargs='?', default='[0,0,0,0,0,0]',
+                        help='Enable Stochastic Weighted Averaging (active, start_val, freq, learning-rate, greater-than correlation, correlation-threshold).')
     parser.add_argument("--temp", type=float, default=1)
     return parser
+
 
 if __name__ == "__main__":
 

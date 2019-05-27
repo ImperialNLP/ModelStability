@@ -132,6 +132,9 @@ class Model() :
         batches = list(range(0, N, bsize))
         batches = shuffle(batches)
 
+        swa_cor_greater_than = self.swa_settings[4]
+        swa_cor_threshold = self.swa_settings[5] * swa_cor_greater_than
+
         for n in tqdm(batches) :
             torch.cuda.empty_cache()
             batch_doc = data[n:n+bsize]
@@ -168,7 +171,9 @@ class Model() :
                             buf = np.squeeze(param_state['swa_buffer'].cpu().numpy())
                             cur_state = np.squeeze(p.data.cpu().numpy())
                             d_correlation = distance_correlation(buf, cur_state)
-                            if d_correlation > 0.95:
+
+                            if (d_correlation * swa_cor_greater_than) > (
+                            swa_cor_threshold):
                                 self.swa_all_optim.update_swa()
                         else:
                             self.swa_all_optim.update_swa()
