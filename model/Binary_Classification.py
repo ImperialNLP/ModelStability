@@ -174,7 +174,8 @@ class Model() :
                             print(d_correlation, "---------------------------------------\n\n\n\n")
                             if d_correlation < 0.9:
                                 self.swa_all_optim.update_swa()
-
+                        else:
+                            self.swa_all_optim.update_swa()
                     self.swa_all_optim.zero_grad()
                     loss.backward()
                     self.swa_all_optim.step()
