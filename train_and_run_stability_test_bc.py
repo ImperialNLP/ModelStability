@@ -7,6 +7,7 @@ import pickle
 import sys
 
 sys.path.append('/data/rishabh/')
+sys.path.append('/Users/apple/MEngProject/')
 
 parser = argparse.ArgumentParser(description='Run experiments on a dataset')
 parser.add_argument('--dataset', type=str, required=True)
