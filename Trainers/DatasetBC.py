@@ -46,6 +46,12 @@ class DataHolder() :
         data_kwargs = { key: [getattr(self, key)[i] for i in idxs] for key in self.attributes}
         return DataHolder(**data_kwargs)
 
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]
+
 class Dataset() :
     def __init__(self, name, path, min_length=None, max_length=None, args=None) :
         self.name = name
