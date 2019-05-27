@@ -93,7 +93,7 @@ class Model() :
         pos_weight = configuration['training'].get('pos_weight', [1.0]*self.decoder.output_size)
         self.pos_weight = torch.Tensor(pos_weight).to(device)
         self.criterion = nn.BCEWithLogitsLoss(reduction='none').to(device)
-        self.perf_swa = 'swa' in configuration['training'] and configuration['training']['swa']
+        self.swa_settings = configuration['training']['swa']
 
         import time
         dirname = configuration['training']['exp_dirname']
@@ -103,15 +103,11 @@ class Model() :
 
         self.temperature = configuration['training']['temperature']
 
-        if self.perf_swa:
-            self.swa_settings = configuration['training']['swa']
+        if self.swa_settings[0]:
             # self.attn_optim = SWA(self.attn_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
             # self.decoder_optim = SWA(self.decoder_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
             # self.encoder_optim = SWA(self.encoder_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
-            self.swa_all_optim = SWA(self.all_optim,
-                                     # swa_start=self.swa_settings[1],
-                                     # swa_freq=self.swa_settings[2],
-                                     swa_lr=self.swa_settings[3])
+            self.swa_all_optim = SWA(self.all_optim)
 
 
     @classmethod
@@ -192,7 +188,6 @@ class Model() :
                     self.all_optim.step()
 
             loss_total += float(loss.data.cpu().item())
-        # import ipdb; ipdb.set_trace()
         if self.swa_settings[0] and self.swa_all_optim.param_groups[0][
             'step_counter'] > self.swa_settings[1]:
             print("\nSWA swapping\n")
@@ -492,7 +487,6 @@ class Model() :
         return adverse_output, adverse_attn, adverse_X
 
     def predict(self, batch_data, lengths, masks):
-        # import ipdb; ipdb.set_trace()
         batch_holder = BatchHolderIndentity(batch_data, lengths, masks)
         self.encoder(batch_holder)
         self.decoder(batch_holder)

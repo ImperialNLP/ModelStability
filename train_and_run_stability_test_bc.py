@@ -19,9 +19,9 @@ parser.add_argument('--attention', type=str, choices=['tanh', 'dot', 'all'],
                     required=True)
 parser.add_argument('--seeds', nargs='?', default='[2,9001,2**18]',
                     help='Seeds for runs.')
-parser.add_argument('--swa', nargs='?', default='[0,50,25,0.001]',
+parser.add_argument('--swa', nargs='?', default='[0,0,0,0]',
                     help='Enable Stochastic Weighted Averaging (active, start_val, freq, learning-rate).')
-parser.add_argument("--temp", type=float, default=3.4)
+parser.add_argument("--temp", type=float, default=1)
 
 args, extras = parser.parse_known_args()
 args.extras = extras
@@ -56,15 +56,9 @@ for pseudo_random_seed in seeds:
     all_outputs.append((preds, atns))
 
 swa_settings = eval(args.swa)
-if swa_settings[0]:
-    file_name = "stability-outputs-swa-" + args.swa + args.seeds + str(
-        args.attention) + str(
-        args.dataset) + str(args.encoder) + ".pkl"
-else:
-    file_name = "stability-outputs-og-" + args.seeds + str(
-        args.attention) + str(
-        args.dataset) + str(args.encoder) + ".pkl"
-
+file_name = "stability-outputs-" + args.swa + args.seeds + str(
+    args.attention) + str(
+    args.dataset) + str(args.encoder) + str(args.temp) + ".pkl"
 pkl_file = open(file_name, 'wb')
 pickle.dump(all_outputs, pkl_file)
 pkl_file.close()
