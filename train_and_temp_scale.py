@@ -21,6 +21,7 @@ parser.add_argument('--seeds', nargs='?', default='[2]',
                     help='Seeds for runs.')
 parser.add_argument('--swa', nargs='?', default='[0,50,25,0.001]',
                     help='Enable Stochastic Weighted Averaging (active, start_val, freq, learning-rate).')
+parser.add_argument("--temp", type=float, default=1)
 
 args, extras = parser.parse_known_args()
 args.extras = extras
