@@ -170,8 +170,7 @@ class Model() :
                             buf = np.squeeze(param_state['swa_buffer'].cpu().numpy())
                             cur_state = np.squeeze(p.data.cpu().numpy())
                             d_correlation = distance_correlation(buf, cur_state)
-                            print(d_correlation, "---------------------------------------\n\n\n\n")
-                            if d_correlation > 0.9:
+                            if d_correlation > 0.95:
                                 self.swa_all_optim.update_swa()
                         else:
                             self.swa_all_optim.update_swa()
