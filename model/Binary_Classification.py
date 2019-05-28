@@ -122,6 +122,7 @@ class Model() :
         for p in self.swa_all_optim.param_groups[0]['params']:
             param_state = self.swa_all_optim.state[p]
             if 'swa_buffer' not in param_state:
+                print('Updating')
                 self.swa_all_optim.update_swa()
 
         correlations = []
@@ -185,6 +186,9 @@ class Model() :
 
             if train :
                 if self.swa_settings[0]:
+                    self.swa_all_optim.zero_grad()
+                    loss.backward()
+                    self.swa_all_optim.step()
                     if self.check_update_swa():
                         # p = self.swa_all_optim.param_groups[0]['params'][-5]
                         correlations = self.get_param_buffer_correlations()
@@ -192,8 +196,7 @@ class Model() :
                         if len(correlations) < 5:
                             print("ERROR!! Correlations less that 5!")
                         print(correlations)
-                        if (len(correlations) > 0 and np.mean(
-                            correlations) * swa_cor_greater_than) > (
+                        if (np.mean(correlations) * swa_cor_greater_than) > (
                             swa_cor_threshold):
                             update_swa = True
 
@@ -201,9 +204,6 @@ class Model() :
                             self.swa_all_optim.update_swa()
                         else:
                             self.swa_all_optim.update_swa()
-                    self.swa_all_optim.zero_grad()
-                    loss.backward()
-                    self.swa_all_optim.step()
 
                 else:
                     # self.encoder_optim.zero_grad()
