@@ -56,7 +56,7 @@ class ModelWithTemperature(nn.Module):
             labels = labels.unsqueeze(-1)  # (B, 1)
         # Calculate NLL and ECE before temperature scaling
         # llogits = torch.tensor([[logit[0], 1 - logit[0]] for logit in logits])
-        before_temperature_nll = nll_criterion(logits, labels).item()
+        before_temperature_nll = nll_criterion(logits, labels.float()).item()
         before_temperature_ece = ece_criterion(logits, labels).item()
         print('Before temperature - NLL: %.3f, ECE: %.3f' % (before_temperature_nll, before_temperature_ece))
 
