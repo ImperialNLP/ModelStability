@@ -193,7 +193,6 @@ class Model() :
                         update_swa = False
                         if len(correlations) < 5:
                             print("ERROR!! Correlations less that 5!")
-                        print(correlations)
                         if (np.mean(correlations) * swa_cor_greater_than) > (
                             swa_cor_threshold):
                             update_swa = True
@@ -225,9 +224,7 @@ class Model() :
             # self.attn_optim.swap_swa_sgd()
             # self.encoder_optim.swap_swa_sgd()
             # self.decoder_optim.swap_swa_sgd()
-            print("aaaa", self.get_param_buffer_correlations())
             self.swa_all_optim.swap_swa_sgd()
-            print("bbbb", self.get_param_buffer_correlations())
 
 
         return loss_total*bsize/N
