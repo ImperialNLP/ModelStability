@@ -63,13 +63,13 @@ class ModelWithTemperature(nn.Module):
         optimizer = optim.LBFGS([self.temperature], lr=0.01, max_iter=50)
 
         def eval():
-            loss = nll_criterion(self.temperature_scale(logits).float(), labels)
+            loss = nll_criterion(self.temperature_scale(logits), labels.float())
             loss.backward()
             return loss
         optimizer.step(eval)
 
         # Calculate NLL and ECE after temperature scaling
-        after_temperature_nll = nll_criterion(self.temperature_scale(logits).float(), labels).item()
+        after_temperature_nll = nll_criterion(self.temperature_scale(logits), labels.float()).item()
         after_temperature_ece = ece_criterion(self.temperature_scale(logits), labels).item()
         print('Optimal temperature: %.3f' % self.temperature.item())
         print('After temperature - NLL: %.3f, ECE: %.3f' % (after_temperature_nll, after_temperature_ece))
