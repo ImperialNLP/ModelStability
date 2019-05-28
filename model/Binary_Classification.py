@@ -137,14 +137,25 @@ class Model() :
             correlations.append(norm)
         return np.mean(correlations)
 
-    def check_update_swa(self):
-        return self.swa_all_optim.param_groups[0]['step_counter'] > \
-               self.swa_settings[1] \
-               and self.swa_all_optim.param_groups[0]['step_counter'] % \
-               self.swa_settings[2] == 0
-
     def total_iter_num(self):
         return self.swa_all_optim.param_groups[0]['step_counter']
+
+    def iter_for_swa_update(self, iter_num):
+        return iter_num > self.swa_settings[1] \
+               and iter_num % self.swa_settings[2] == 0
+
+    def check_and_update_swa(self):
+        if not self.running_correlations:
+            return
+        swa_cor_greater_than = np.sign(self.swa_settings[4])
+        if self.iter_for_swa_update(self.total_iter_num()):
+            cur_step_correlation = self.get_param_buffer_correlations()
+            running_mean = np.mean(self.running_correlations)
+            self.running_correlations.append(cur_step_correlation)
+
+            if (running_mean * swa_cor_greater_than) > (
+                cur_step_correlation * swa_cor_greater_than):
+                self.swa_all_optim.update_swa()
 
     def train(self, data_in, target_in, train=True) :
         sorting_idx = get_sorting_index_with_noise_from_lengths([len(x) for x in data_in], noise_frac=0.1)
@@ -159,9 +170,6 @@ class Model() :
 
         batches = list(range(0, N, bsize))
         batches = shuffle(batches)
-
-        swa_cor_greater_than = self.swa_settings[4]
-        swa_cor_threshold = self.swa_settings[5] * swa_cor_greater_than
 
         for n in tqdm(batches) :
             torch.cuda.empty_cache()
@@ -188,16 +196,7 @@ class Model() :
 
             if train :
                 if self.swa_settings[0]:
-                    if self.check_update_swa():
-                        cur_step_correlation = self.get_param_buffer_correlations()
-                        update_swa = np.mean(
-                            self.running_correlations) * np.sign(
-                            swa_cor_greater_than) > cur_step_correlation * np.sign(
-                            swa_cor_greater_than)
-                        self.running_correlations.append(cur_step_correlation)
-
-                        if update_swa:
-                            self.swa_all_optim.update_swa()
+                    self.check_and_update_swa()
 
                     self.swa_all_optim.zero_grad()
                     loss.backward()
