@@ -189,14 +189,14 @@ class Model() :
 
                     if self.check_update_swa():
                         # p = self.swa_all_optim.param_groups[0]['params'][-5]
-                        correlations = self.get_param_buffer_correlations()
-                        update_swa = False
-                        if len(correlations) < 5:
-                            print("ERROR!! Correlations less that 5!")
-                        if (np.mean(correlations) * swa_cor_greater_than) > (
-                            swa_cor_threshold):
-                            update_swa = True
-
+                        update_swa = True
+                        # correlations = self.get_param_buffer_correlations()
+                        # if len(correlations) < 5:
+                        #     print("ERROR!! Correlations less that 5!")
+                        # if (np.mean(correlations) * swa_cor_greater_than) > (
+                        #     swa_cor_threshold):
+                        #     update_swa = True
+                        #
                         if update_swa:
                             self.swa_all_optim.update_swa()
                         else:
