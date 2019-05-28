@@ -186,9 +186,7 @@ class Model() :
 
             if train :
                 if self.swa_settings[0]:
-                    self.swa_all_optim.zero_grad()
-                    loss.backward()
-                    self.swa_all_optim.step()
+
                     if self.check_update_swa():
                         # p = self.swa_all_optim.param_groups[0]['params'][-5]
                         correlations = self.get_param_buffer_correlations()
@@ -204,6 +202,10 @@ class Model() :
                             self.swa_all_optim.update_swa()
                         else:
                             self.swa_all_optim.update_swa()
+
+                    self.swa_all_optim.zero_grad()
+                    loss.backward()
+                    self.swa_all_optim.step()
 
                 else:
                     # self.encoder_optim.zero_grad()
@@ -224,6 +226,7 @@ class Model() :
             # self.encoder_optim.swap_swa_sgd()
             # self.decoder_optim.swap_swa_sgd()
             self.swa_all_optim.swap_swa_sgd()
+            print("asdasd", self.get_param_buffer_correlations())
 
 
         return loss_total*bsize/N
