@@ -225,8 +225,9 @@ class Model() :
             # self.attn_optim.swap_swa_sgd()
             # self.encoder_optim.swap_swa_sgd()
             # self.decoder_optim.swap_swa_sgd()
+            print("aaaa", self.get_param_buffer_correlations())
             self.swa_all_optim.swap_swa_sgd()
-            print("asdasd", self.get_param_buffer_correlations())
+            print("bbbb", self.get_param_buffer_correlations())
 
 
         return loss_total*bsize/N
