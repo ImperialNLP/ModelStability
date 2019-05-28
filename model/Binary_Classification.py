@@ -346,11 +346,12 @@ class Model() :
 
         return permutations
 
-    def save_values(self, use_dirname=None, save_model=True) :
+    def save_values(self, use_dirname=None, save_model=True, append_to_dir_name='') :
         if use_dirname is not None :
             dirname = use_dirname
         else :
-            dirname = self.dirname
+            dirname = self.dirname + append_to_dir_name
+            self.last_epch_dirname = dirname
         os.makedirs(dirname, exist_ok=True)
         shutil.copy2(file_name, dirname + '/')
         json.dump(self.configuration, open(dirname + '/config.json', 'w'))

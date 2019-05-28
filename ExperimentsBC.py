@@ -34,7 +34,12 @@ def train_dataset_and_get_atn_map(dataset, encoders):
                               _type=dataset.trainer_type)
         predictions, attentions = evaluator.evaluate(dataset.test_data,
                                                      save_results=True)
-        return predictions, attentions
+
+        evaluator = Evaluator(dataset, trainer.model.last_epch_dirname,
+                              _type=dataset.trainer_type)
+        predictions_lst_epch, attentions_lst_epch = evaluator.evaluate(dataset.test_data,
+                                                     save_results=True)
+        return predictions, attentions, predictions_lst_epch, attentions_lst_epch
 
 def train_dataset_and_temp_scale(dataset, encoders):
     for e in encoders:

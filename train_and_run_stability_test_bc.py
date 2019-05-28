@@ -44,25 +44,33 @@ if __name__ == "__main__":
     seeds = eval(args.seeds)
 
     all_outputs = []
+    all_outputs_lst = []
     for pseudo_random_seed in seeds:
         os.environ['PYTHONHASHSEED'] = str(pseudo_random_seed)
         np.random.seed(pseudo_random_seed)
         random.seed(pseudo_random_seed)
         torch.manual_seed(pseudo_random_seed)
-        preds, atns = [], []
+        preds, atns, preds_lst, atns_lst = [], [], [], []
         if args.attention in ['tanh', 'all']:
-            preds, atns = train_dataset_and_get_atn_map(dataset, encoders)
+            preds, atns, preds_lst, atns_lst = train_dataset_and_get_atn_map(dataset, encoders)
             # generate_graphs_on_encoders(dataset, encoders)
         if args.attention in ['dot', 'all']:
             encoders = [e + '_dot' for e in encoders]
-            preds, atns = train_dataset_and_get_atn_map(dataset, encoders)
+            preds, atns, preds_lst, atns_lst = train_dataset_and_get_atn_map(dataset, encoders)
             # generate_graphs_on_encoders(dataset, encoders)
         all_outputs.append((preds, atns))
+        all_outputs_lst.append((preds_lst, atns_lst))
 
-    swa_settings = eval(args.swa)
     file_name = "stability-outputs-" + args.swa + args.seeds + str(
         args.attention) + str(
         args.dataset) + str(args.encoder) + str(args.temp) + ".pkl"
     pkl_file = open(file_name, 'wb')
     pickle.dump(all_outputs, pkl_file)
+    pkl_file.close()
+
+    file_name = "stability-outputs-lst_ep-" + args.swa + args.seeds + str(
+        args.attention) + str(
+        args.dataset) + str(args.encoder) + str(args.temp) + ".pkl"
+    pkl_file = open(file_name, 'wb')
+    pickle.dump(all_outputs_lst, pkl_file)
     pkl_file.close()
