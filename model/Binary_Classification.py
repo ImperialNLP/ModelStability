@@ -119,16 +119,20 @@ class Model() :
         return obj
 
     def get_param_buffer_correlations(self):
-        correlations = []
         for p in self.swa_all_optim.param_groups[0]['params']:
             param_state = self.swa_all_optim.state[p]
-            if 'swa_buffer' in param_state:
-                buf = np.squeeze(
-                    param_state['swa_buffer'].cpu().numpy())
-                cur_state = np.squeeze(p.data.cpu().numpy())
-                d_correlation = distance_correlation(buf,
-                                                     cur_state)
-                correlations.append(d_correlation)
+            if 'swa_buffer' not in param_state:
+                self.swa_all_optim.update_swa()
+
+        correlations = []
+        for p in self.swa_all_optim.param_groups[0]['params'][1, 2, 5, 6, 9]:
+            param_state = self.swa_all_optim.state[p]
+            buf = np.squeeze(
+                param_state['swa_buffer'].cpu().numpy())
+            cur_state = np.squeeze(p.data.cpu().numpy())
+            d_correlation = distance_correlation(buf,
+                                                 cur_state)
+            correlations.append(d_correlation)
         return correlations
 
     def check_update_swa(self):
@@ -184,9 +188,8 @@ class Model() :
                         # p = self.swa_all_optim.param_groups[0]['params'][-5]
                         correlations = self.get_param_buffer_correlations()
                         update_swa = False
-                        if len(correlations) < len(
-                            self.swa_all_optim.param_groups[0]['params']):
-                            self.swa_all_optim.update_swa()
+                        if len(correlations) < 5:
+                            print("ERROR!! Correlations less that 5!")
                         print(correlations)
                         if (len(correlations) > 0 and np.mean(
                             correlations) * swa_cor_greater_than) > (
