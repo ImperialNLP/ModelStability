@@ -17,7 +17,7 @@ def get_parser():
                         required=True)
     parser.add_argument('--attention', type=str, choices=['tanh', 'dot', 'all'],
                         required=True)
-    parser.add_argument('--seeds', nargs='?', default='[2,9001,2**18]',
+    parser.add_argument('--seeds', nargs='?', default='[1,1024,2**30,43,789]',
                         help='Seeds for runs.')
     parser.add_argument('--swa', nargs='?', default='[0,0,0,0,0,0]',
                         help='Enable Stochastic Weighted Averaging (active, start_val, freq, learning-rate, greater-than correlation, correlation-threshold).')
