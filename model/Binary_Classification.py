@@ -165,7 +165,7 @@ class Model() :
                         and self.swa_all_optim.param_groups[0]['step_counter'] % \
                         self.swa_settings[2] == 0:
 
-                        p = self.swa_all_optim.param_groups[0]['params'][-2]
+                        p = self.swa_all_optim.param_groups[0]['params'][-5]
                         param_state = self.swa_all_optim.state[p]
                         if 'swa_buffer' in param_state:
                             buf = np.squeeze(param_state['swa_buffer'].cpu().numpy())
