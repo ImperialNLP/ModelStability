@@ -130,9 +130,10 @@ class Model() :
             buf = np.squeeze(
                 param_state['swa_buffer'].cpu().numpy())
             cur_state = np.squeeze(p.data.cpu().numpy())
-            d_correlation = distance_correlation(buf,
-                                                 cur_state)
-            correlations.append(d_correlation)
+            # d_correlation = distance_correlation(buf,
+            #                                      cur_state)
+            norm = np.linalg.norm(buf - cur_state)
+            correlations.append(norm)
         return correlations
 
     def check_update_swa(self):
