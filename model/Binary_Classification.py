@@ -118,6 +118,26 @@ class Model() :
         obj.load_values(dirname)
         return obj
 
+    def get_param_buffer_correlations(self):
+        correlations = []
+        for p in self.swa_all_optim.param_groups[0]['params']:
+            param_state = self.swa_all_optim.state[p]
+            if 'swa_buffer' in param_state:
+                buf = np.squeeze(
+                    param_state['swa_buffer'].cpu().numpy())
+                cur_state = np.squeeze(p.data.cpu().numpy())
+                d_correlation = distance_correlation(buf,
+                                                     cur_state)
+                correlations.append(d_correlation)
+        return correlations
+
+    def check_update_swa(self):
+        return self.swa_all_optim.param_groups[0]['step_counter'] > \
+               self.swa_settings[1] \
+               and self.swa_all_optim.param_groups[0]['step_counter'] % \
+               self.swa_settings[2] == 0
+
+
     def train(self, data_in, target_in, train=True) :
         sorting_idx = get_sorting_index_with_noise_from_lengths([len(x) for x in data_in], noise_frac=0.1)
         data = [data_in[i] for i in sorting_idx]
@@ -160,21 +180,21 @@ class Model() :
 
             if train :
                 if self.swa_settings[0]:
-                    if self.swa_all_optim.param_groups[0]['step_counter'] > \
-                        self.swa_settings[1] \
-                        and self.swa_all_optim.param_groups[0]['step_counter'] % \
-                        self.swa_settings[2] == 0:
-
-                        p = self.swa_all_optim.param_groups[0]['params'][-5]
-                        param_state = self.swa_all_optim.state[p]
-                        if 'swa_buffer' in param_state:
-                            buf = np.squeeze(param_state['swa_buffer'].cpu().numpy())
-                            cur_state = np.squeeze(p.data.cpu().numpy())
-                            d_correlation = distance_correlation(buf, cur_state)
-
-                            if (d_correlation * swa_cor_greater_than) > (
+                    if self.check_update_swa():
+                        # p = self.swa_all_optim.param_groups[0]['params'][-5]
+                        correlations = self.get_param_buffer_correlations()
+                        update_swa = False
+                        if len(correlations) < len(
+                            self.swa_all_optim.param_groups[0]['params']):
+                            self.swa_all_optim.update_swa()
+                        print(correlations)
+                        if (len(correlations) > 0 and np.mean(
+                            correlations) * swa_cor_greater_than) > (
                             swa_cor_threshold):
-                                self.swa_all_optim.update_swa()
+                            update_swa = True
+
+                        if update_swa:
+                            self.swa_all_optim.update_swa()
                         else:
                             self.swa_all_optim.update_swa()
                     self.swa_all_optim.zero_grad()
