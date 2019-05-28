@@ -22,6 +22,8 @@ def get_parser():
     parser.add_argument('--swa', nargs='?', default='[0,0,0,0,0,0]',
                         help='Enable Stochastic Weighted Averaging (active, start_val, freq, learning-rate, greater-than correlation, correlation-threshold).')
     parser.add_argument("--temp", type=float, default=1)
+
+    parser.add_argument("--iters", type=int, default=15)
     return parser
 
 
@@ -52,11 +54,13 @@ if __name__ == "__main__":
         torch.manual_seed(pseudo_random_seed)
         preds, atns, preds_lst, atns_lst = [], [], [], []
         if args.attention in ['tanh', 'all']:
-            preds, atns, preds_lst, atns_lst = train_dataset_and_get_atn_map(dataset, encoders)
+            preds, atns, preds_lst, atns_lst = train_dataset_and_get_atn_map(
+                dataset, encoders, args.iters)
             # generate_graphs_on_encoders(dataset, encoders)
         if args.attention in ['dot', 'all']:
             encoders = [e + '_dot' for e in encoders]
-            preds, atns, preds_lst, atns_lst = train_dataset_and_get_atn_map(dataset, encoders)
+            preds, atns, preds_lst, atns_lst = train_dataset_and_get_atn_map(
+                dataset, encoders, args.iters)
             # generate_graphs_on_encoders(dataset, encoders)
         all_outputs.append((preds, atns))
         all_outputs_lst.append((preds_lst, atns_lst))

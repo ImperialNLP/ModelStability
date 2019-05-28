@@ -23,12 +23,12 @@ def train_dataset(dataset, config='lstm') :
         return
 
 
-def train_dataset_and_get_atn_map(dataset, encoders):
+def train_dataset_and_get_atn_map(dataset, encoders, num_iters=15):
     for e in encoders:
         config = configurations[e](dataset)
         trainer = Trainer(dataset, config=config,
                           _type=dataset.trainer_type)
-        trainer.train(dataset.train_data, dataset.dev_data, n_iters=8,
+        trainer.train(dataset.train_data, dataset.dev_data, n_iters=num_iters,
                       save_on_metric=dataset.save_on_metric)
         evaluator = Evaluator(dataset, trainer.model.dirname,
                               _type=dataset.trainer_type)
