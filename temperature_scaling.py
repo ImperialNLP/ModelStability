@@ -37,7 +37,7 @@ class ModelWithTemperature(nn.Module):
         valid_loader (DataLoader): validation set loader
         """
         # self.cuda()
-        nll_criterion = nn.CrossEntropyLoss()
+        nll_criterion = nn.BCEWithLogitsLoss()
         ece_criterion = _ECELoss()
 
         # First: collect all the logits and labels for the validation set
@@ -52,23 +52,23 @@ class ModelWithTemperature(nn.Module):
             logits = torch.cat(logits_list).cpu()
             labels = torch.cat(labels_list).cpu()
         # Calculate NLL and ECE before temperature scaling
-        llogits = torch.tensor([[logit[0], 1 - logit[0]] for logit in logits])
-        before_temperature_nll = nll_criterion(llogits, labels).item()
-        before_temperature_ece = ece_criterion(llogits, labels).item()
+        # llogits = torch.tensor([[logit[0], 1 - logit[0]] for logit in logits])
+        before_temperature_nll = nll_criterion(logits, labels).item()
+        before_temperature_ece = ece_criterion(logits, labels).item()
         print('Before temperature - NLL: %.3f, ECE: %.3f' % (before_temperature_nll, before_temperature_ece))
 
         # Next: optimize the temperature w.r.t. NLL
         optimizer = optim.LBFGS([self.temperature], lr=0.01, max_iter=50)
 
         def eval():
-            loss = nll_criterion(self.temperature_scale(llogits), labels)
+            loss = nll_criterion(self.temperature_scale(logits), labels)
             loss.backward()
             return loss
         optimizer.step(eval)
 
         # Calculate NLL and ECE after temperature scaling
-        after_temperature_nll = nll_criterion(self.temperature_scale(llogits), labels).item()
-        after_temperature_ece = ece_criterion(self.temperature_scale(llogits), labels).item()
+        after_temperature_nll = nll_criterion(self.temperature_scale(logits), labels).item()
+        after_temperature_ece = ece_criterion(self.temperature_scale(logits), labels).item()
         print('Optimal temperature: %.3f' % self.temperature.item())
         print('After temperature - NLL: %.3f, ECE: %.3f' % (after_temperature_nll, after_temperature_ece))
 
