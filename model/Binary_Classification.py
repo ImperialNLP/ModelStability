@@ -496,6 +496,6 @@ class Model() :
         batch_holder = BatchHolderIndentity(batch_data, lengths, masks)
         self.encoder(batch_holder)
         self.decoder(batch_holder)
-        batch_holder.predict = torch.sigmoid(batch_holder.predict)
+        # batch_holder.predict = torch.sigmoid(batch_holder.predict)
         predict = batch_holder.predict
         return predict
