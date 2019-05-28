@@ -144,12 +144,13 @@ class Model() :
                and iter_num % self.swa_settings[2] == 0
 
     def check_and_update_swa(self):
-        if not self.running_correlations:
-            return
         swa_cor_greater_than = np.sign(self.swa_settings[4])
         if self.iter_for_swa_update(self.total_iter_num()):
             cur_step_correlation = self.get_param_buffer_correlations()
-            running_mean = np.mean(self.running_correlations)
+            if not self.running_correlations:
+                running_mean = 0
+            else:
+                running_mean = np.mean(self.running_correlations)
             self.running_correlations.append(cur_step_correlation)
 
             if (running_mean * swa_cor_greater_than) > (
