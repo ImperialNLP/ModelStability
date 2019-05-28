@@ -221,7 +221,7 @@ class Model() :
             self.encoder(batch_data)
             self.decoder(batch_data)
 
-            batch_data.predict = torch.sigmoid(batch_data.predict) / self.temperature
+            batch_data.predict = torch.sigmoid(batch_data.predict / self.temperature)
             if self.decoder.use_attention :
                 attn = batch_data.attn.cpu().data.numpy()
                 attns.append(attn)
