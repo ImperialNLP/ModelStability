@@ -122,7 +122,6 @@ class Model() :
         for p in self.swa_all_optim.param_groups[0]['params']:
             param_state = self.swa_all_optim.state[p]
             if 'swa_buffer' not in param_state:
-                print('Updating')
                 self.swa_all_optim.update_swa()
 
         correlations = []
