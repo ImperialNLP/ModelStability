@@ -223,7 +223,7 @@ class Model() :
             # self.attn_optim.swap_swa_sgd()
             # self.encoder_optim.swap_swa_sgd()
             # self.decoder_optim.swap_swa_sgd()
-            # self.swa_all_optim.swap_swa_sgd()
+            self.swa_all_optim.swap_swa_sgd()
 
 
         return loss_total*bsize/N
