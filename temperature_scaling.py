@@ -51,6 +51,7 @@ class ModelWithTemperature(nn.Module):
                 labels_list.append(label)
             logits = torch.cat(logits_list).cpu()
             labels = torch.cat(labels_list).cpu()
+        import ipdb; ipdb.set_trace()
         # Calculate NLL and ECE before temperature scaling
         # llogits = torch.tensor([[logit[0], 1 - logit[0]] for logit in logits])
         before_temperature_nll = nll_criterion(logits, labels).item()
