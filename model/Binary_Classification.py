@@ -108,7 +108,7 @@ class Model() :
             # self.decoder_optim = SWA(self.decoder_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
             # self.encoder_optim = SWA(self.encoder_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
             self.swa_all_optim = SWA(self.all_optim)
-
+            self.running_correlations = []
 
     @classmethod
     def init_from_config(cls, dirname, **kwargs) :
@@ -135,7 +135,7 @@ class Model() :
             #                                      cur_state)
             norm = np.linalg.norm(buf - cur_state)
             correlations.append(norm)
-        return correlations
+        return np.mean(correlations)
 
     def check_update_swa(self):
         return self.swa_all_optim.param_groups[0]['step_counter'] > \
@@ -143,6 +143,8 @@ class Model() :
                and self.swa_all_optim.param_groups[0]['step_counter'] % \
                self.swa_settings[2] == 0
 
+    def total_iter_num(self):
+        return self.swa_all_optim.param_groups[0]['step_counter']
 
     def train(self, data_in, target_in, train=True) :
         sorting_idx = get_sorting_index_with_noise_from_lengths([len(x) for x in data_in], noise_frac=0.1)
@@ -186,20 +188,15 @@ class Model() :
 
             if train :
                 if self.swa_settings[0]:
-
                     if self.check_update_swa():
-                        # p = self.swa_all_optim.param_groups[0]['params'][-5]
-                        update_swa = True
-                        # correlations = self.get_param_buffer_correlations()
-                        # if len(correlations) < 5:
-                        #     print("ERROR!! Correlations less that 5!")
-                        # if (np.mean(correlations) * swa_cor_greater_than) > (
-                        #     swa_cor_threshold):
-                        #     update_swa = True
-                        #
+                        cur_step_correlation = self.get_param_buffer_correlations()
+                        update_swa = np.mean(
+                            self.running_correlations) * np.sign(
+                            swa_cor_greater_than) > cur_step_correlation * np.sign(
+                            swa_cor_greater_than)
+                        self.running_correlations.append(cur_step_correlation)
+
                         if update_swa:
-                            self.swa_all_optim.update_swa()
-                        else:
                             self.swa_all_optim.update_swa()
 
                     self.swa_all_optim.zero_grad()
@@ -225,6 +222,7 @@ class Model() :
             # self.encoder_optim.swap_swa_sgd()
             # self.decoder_optim.swap_swa_sgd()
             self.swa_all_optim.swap_swa_sgd()
+            self.running_correlations = []
 
 
         return loss_total*bsize/N
