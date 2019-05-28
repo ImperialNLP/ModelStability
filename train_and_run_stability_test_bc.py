@@ -23,7 +23,7 @@ def get_parser():
                         help='Enable Stochastic Weighted Averaging (active, start_val, freq, learning-rate, greater-than correlation, correlation-threshold).')
     parser.add_argument("--temp", type=float, default=1)
 
-    parser.add_argument("--iters", type=int, default=15)
+    parser.add_argument("--iters", type=int, default=20)
     return parser
 
 
