@@ -102,6 +102,7 @@ def run_evaluator_on_latest_model(dataset, config='lstm') :
 def run_evaluator_on_specific_model(dataset, model_path, config='lstm'):
     config = configurations[config](dataset)
     evaluator = Evaluator(dataset, model_path, _type=dataset.trainer_type)
+    evaluator.model.temperature = config['training']['temperature']
     _ = evaluator.evaluate(dataset.test_data, save_results=True)
     return evaluator
 
