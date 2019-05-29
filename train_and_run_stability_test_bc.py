@@ -36,6 +36,7 @@ if __name__ == "__main__":
 
     from Transparency.Trainers.DatasetBC import *
     from Transparency.ExperimentsBC import *
+    from common_code.common import pickle_to_file
 
     dataset = datasets[args.dataset](args)
 
@@ -67,12 +68,10 @@ if __name__ == "__main__":
         all_outputs.append((preds, atns))
         all_outputs_lst.append((preds_lst, atns_lst))
 
-    file_name = "stability-outputs-" + args.name + args.swa + args.seeds + str(
-        args.attention) + str(
-        args.dataset) + str(args.encoder) + str(args.temp) + ".pkl"
-    pkl_file = open(file_name, 'wb')
-    pickle.dump(all_outputs, pkl_file)
-    pkl_file.close()
+    run_settings_str = args.name + args.swa + args.seeds + str(
+        args.attention) + str(args.dataset) + str(args.encoder) + str(args.temp)
+    file_name = "stability-outputs-" + run_settings_str + ".pkl"
+    pickle_to_file(all_outputs, file_name)
 
     # file_name = "stability-outputs-lst_ep-" + args.swa + args.seeds + str(
     #     args.attention) + str(

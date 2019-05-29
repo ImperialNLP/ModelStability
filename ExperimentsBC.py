@@ -10,6 +10,8 @@ from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 from temperature_scaling import ModelWithTemperature
 from model.modelUtils import BatchHolder
+import pickle
+from common_code.common import pickle_to_file
 
 def train_dataset(dataset, config='lstm') :
     try :
@@ -30,6 +32,8 @@ def train_dataset_and_get_atn_map(dataset, encoders, num_iters=15):
                           _type=dataset.trainer_type)
         trainer.train(dataset.train_data, dataset.dev_data, n_iters=num_iters,
                       save_on_metric=dataset.save_on_metric)
+        train_losses = trainer.model.train_losses
+        pickle_to_file(train_losses, "train-losses-" + e + dataset + ".pkl")
         evaluator = Evaluator(dataset, trainer.model.dirname,
                               _type=dataset.trainer_type)
         predictions, attentions = evaluator.evaluate(dataset.test_data,

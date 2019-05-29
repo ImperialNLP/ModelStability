@@ -165,3 +165,9 @@ def push_graphs_to_main_directory(model_dirname, name) :
         output_name = os.path.join('graph_outputs', outdir)
         os.makedirs(output_name, exist_ok=True)
         shutil.copyfile(os.path.join(model_dirname, f), os.path.join(output_name, name + '.json'))
+
+
+def pickle_to_file(obj, file_name):
+    pkl_file = open(file_name, 'wb')
+    pickle.dump(obj, pkl_file)
+    pkl_file.close()

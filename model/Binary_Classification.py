@@ -102,6 +102,7 @@ class Model() :
         self.dirname = os.path.join(basepath, dirname, self.time_str)
 
         self.temperature = configuration['training']['temperature']
+        self.train_losses = []
 
         if self.swa_settings[0]:
             # self.attn_optim = SWA(self.attn_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
@@ -190,6 +191,7 @@ class Model() :
             bce_loss = (bce_loss * weight).mean(1).sum()
 
             loss = bce_loss
+            self.train_losses.append(bce_loss)
 
             if hasattr(batch_data, 'reg_loss') :
                 loss += batch_data.reg_loss
