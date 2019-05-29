@@ -4,6 +4,7 @@ import sys
 
 sys.path.append('/data/rishabh/')
 sys.path.append('/Users/apple/MEngProject/')
+sys.path.append('/home/ubuntu/')
 
 
 def get_parser():
@@ -17,10 +18,11 @@ def get_parser():
                         required=True)
     parser.add_argument('--attention', type=str, choices=['tanh', 'dot', 'all'],
                         required=True)
-    parser.add_argument('--seeds', nargs='?', default='[1,1024,2**30,43,789]',
+    parser.add_argument('--seeds', nargs='?',
+                        default='[1,1024,2**30,43,789,1537,7771,2**18,99999,13]',
                         help='Seeds for runs.')
-    parser.add_argument('--swa', nargs='?', default='[0,0,0,0,0,0]',
-                        help='Enable Stochastic Weighted Averaging (use SWA?, start iter, frequency, ignore running norm, greater-than running norm, running norm-threshold).')
+    parser.add_argument('--swa', nargs='?', default='[0,0,0,0]',
+                        help='Enable Stochastic Weighted Averaging (use SWA?, start iter, frequency, greater-than running norm).')
     parser.add_argument("--temp", type=float, default=1)
 
     parser.add_argument("--iters", type=int, default=20)

@@ -118,24 +118,22 @@ class Model() :
         obj.load_values(dirname)
         return obj
 
-    def get_param_buffer_correlations(self):
+    def get_param_buffer_norms(self):
         for p in self.swa_all_optim.param_groups[0]['params']:
             param_state = self.swa_all_optim.state[p]
             if 'swa_buffer' not in param_state:
                 self.swa_all_optim.update_swa()
 
-        correlations = []
+        norms = []
         for p in np.array(self.swa_all_optim.param_groups[0]['params'])[[1, 2, 5, 6, 9]]:
         # for p in np.array(self.swa_all_optim.param_groups[0]['params'])[[6, 9]]:
             param_state = self.swa_all_optim.state[p]
             buf = np.squeeze(
                 param_state['swa_buffer'].cpu().numpy())
             cur_state = np.squeeze(p.data.cpu().numpy())
-            # d_correlation = distance_correlation(buf,
-            #                                      cur_state)
             norm = np.linalg.norm(buf - cur_state)
-            correlations.append(norm)
-        return np.mean(correlations)
+            norms.append(norm)
+        return np.mean(norms)
 
     def total_iter_num(self):
         return self.swa_all_optim.param_groups[0]['step_counter']
@@ -145,9 +143,9 @@ class Model() :
                and iter_num % self.swa_settings[2] == 0
 
     def check_and_update_swa(self):
-        greater_than = np.sign(self.swa_settings[4])
+        greater_than = np.sign(self.swa_settings[3])
         if self.iter_for_swa_update(self.total_iter_num()):
-            cur_step_diff_norm = self.get_param_buffer_correlations()
+            cur_step_diff_norm = self.get_param_buffer_norms()
             if not self.running_norms:
                 running_mean_norm = 0
             else:

@@ -109,7 +109,7 @@ class Model() :
         self.swa_settings = configuration['training']['swa']
         if self.swa_settings[0]:
             self.swa_all_optim = SWA(self.optim)
-            self.running_correlations = []
+            self.running_norms = []
 
     @classmethod
     def init_from_config(cls, dirname, **kwargs) :
@@ -119,24 +119,22 @@ class Model() :
         obj.load_values(dirname)
         return obj
 
-    def get_param_buffer_correlations(self):
+    def get_param_buffer_norms(self):
         for p in self.swa_all_optim.param_groups[0]['params']:
             param_state = self.swa_all_optim.state[p]
             if 'swa_buffer' not in param_state:
                 self.swa_all_optim.update_swa()
 
-        correlations = []
+        norms = []
         for p in np.array(self.swa_all_optim.param_groups[0]['params'])[
             [1, 2, 5, 6, 10, 11, 14, 15, 18, 20, 24, 26]]:
             param_state = self.swa_all_optim.state[p]
             buf = np.squeeze(
                 param_state['swa_buffer'].cpu().numpy())
             cur_state = np.squeeze(p.data.cpu().numpy())
-            # d_correlation = distance_correlation(buf,
-            #                                      cur_state)
             norm = np.linalg.norm(buf - cur_state)
-            correlations.append(norm)
-        return np.mean(correlations)
+            norms.append(norm)
+        return np.mean(norms)
 
     def total_iter_num(self):
         return self.swa_all_optim.param_groups[0]['step_counter']
@@ -147,17 +145,18 @@ class Model() :
 
 
     def check_and_update_swa(self):
-        swa_cor_greater_than = np.sign(self.swa_settings[4])
+        greater_than = np.sign(self.swa_settings[3])
         if self.iter_for_swa_update(self.total_iter_num()):
-            cur_step_correlation = self.get_param_buffer_correlations()
-            if not self.running_correlations:
-                running_mean = 0
+            cur_step_diff_norm = self.get_param_buffer_norms()
+            if not self.running_norms:
+                running_mean_norm = 0
             else:
-                running_mean = np.mean(self.running_correlations)
-            self.running_correlations.append(cur_step_correlation)
+                running_mean_norm = np.mean(self.running_norms)
 
-            if (running_mean * swa_cor_greater_than) > (
-                cur_step_correlation * swa_cor_greater_than) or self.swa_settings[3]:
+            self.running_norms.append(cur_step_diff_norm)
+
+            if (cur_step_diff_norm * greater_than) > (
+                running_mean_norm * greater_than):
                 self.swa_all_optim.update_swa()
 
     def train(self, train_data, train=True) :
@@ -229,7 +228,7 @@ class Model() :
             # self.encoder_optim.swap_swa_sgd()
             # self.decoder_optim.swap_swa_sgd()
             self.swa_all_optim.swap_swa_sgd()
-            self.running_correlations = []
+            self.running_norms = []
         return loss_total*bsize/N
 
     def evaluate(self, data) :
