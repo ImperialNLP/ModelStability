@@ -33,7 +33,7 @@ def train_dataset_and_get_atn_map(dataset, encoders, num_iters=15):
         trainer.train(dataset.train_data, dataset.dev_data, n_iters=num_iters,
                       save_on_metric=dataset.save_on_metric)
         train_losses = trainer.model.train_losses
-        pickle_to_file(train_losses, "train-losses-" + e + dataset + ".pkl")
+
         evaluator = Evaluator(dataset, trainer.model.dirname,
                               _type=dataset.trainer_type)
         predictions, attentions = evaluator.evaluate(dataset.test_data,
@@ -43,7 +43,7 @@ def train_dataset_and_get_atn_map(dataset, encoders, num_iters=15):
                               _type=dataset.trainer_type)
         predictions_lst_epch, attentions_lst_epch = evaluator.evaluate(dataset.test_data,
                                                      save_results=True)
-        return predictions, attentions, predictions_lst_epch, attentions_lst_epch
+        return predictions, attentions, predictions_lst_epch, attentions_lst_epch, train_losses
 
 def train_dataset_and_temp_scale(dataset, encoders):
     for e in encoders:

@@ -26,6 +26,8 @@ def get_parser():
     parser.add_argument("--iters", type=int, default=20)
 
     parser.add_argument("--name", type=str, default='')
+
+    parser.add_argument("--loss", type=int, default=0)
     return parser
 
 
@@ -56,13 +58,16 @@ if __name__ == "__main__":
         random.seed(pseudo_random_seed)
         torch.manual_seed(pseudo_random_seed)
         preds, atns, preds_lst, atns_lst = [], [], [], []
+        if args.loss:
+            train_losses = []
+
         if args.attention in ['tanh', 'all']:
-            preds, atns, preds_lst, atns_lst = train_dataset_and_get_atn_map(
+            preds, atns, preds_lst, atns_lst, train_losses = train_dataset_and_get_atn_map(
                 dataset, encoders, args.iters)
             # generate_graphs_on_encoders(dataset, encoders)
         if args.attention in ['dot', 'all']:
             encoders = [e + '_dot' for e in encoders]
-            preds, atns, preds_lst, atns_lst = train_dataset_and_get_atn_map(
+            preds, atns, preds_lst, atns_lst, train_losses = train_dataset_and_get_atn_map(
                 dataset, encoders, args.iters)
             # generate_graphs_on_encoders(dataset, encoders)
         all_outputs.append((preds, atns))
@@ -72,6 +77,9 @@ if __name__ == "__main__":
         args.attention) + str(args.dataset) + str(args.encoder) + str(args.temp)
     file_name = "stability-outputs-" + run_settings_str + ".pkl"
     pickle_to_file(all_outputs, file_name)
+
+    if args.loss:
+        pickle_to_file(train_losses, "train-losses-" + run_settings_str + ".pkl")
 
     # file_name = "stability-outputs-lst_ep-" + args.swa + args.seeds + str(
     #     args.attention) + str(
