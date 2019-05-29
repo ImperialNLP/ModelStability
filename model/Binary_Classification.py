@@ -156,7 +156,7 @@ class Model() :
             if (running_mean * swa_cor_greater_than) > (
                 cur_step_correlation * swa_cor_greater_than):
                 self.swa_all_optim.update_swa()
-                print("Yes")
+                print("Yes", running_mean, cur_step_correlation)
             else:
                 print("No")
 
