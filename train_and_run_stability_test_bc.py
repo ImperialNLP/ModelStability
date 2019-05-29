@@ -24,6 +24,8 @@ def get_parser():
     parser.add_argument("--temp", type=float, default=1)
 
     parser.add_argument("--iters", type=int, default=20)
+
+    parser.add_argument("--name", type=str, default='')
     return parser
 
 
@@ -65,16 +67,16 @@ if __name__ == "__main__":
         all_outputs.append((preds, atns))
         all_outputs_lst.append((preds_lst, atns_lst))
 
-    file_name = "stability-outputs-" + args.swa + args.seeds + str(
+    file_name = "stability-outputs-" + args.name + args.swa + args.seeds + str(
         args.attention) + str(
         args.dataset) + str(args.encoder) + str(args.temp) + ".pkl"
     pkl_file = open(file_name, 'wb')
     pickle.dump(all_outputs, pkl_file)
     pkl_file.close()
 
-    file_name = "stability-outputs-lst_ep-" + args.swa + args.seeds + str(
-        args.attention) + str(
-        args.dataset) + str(args.encoder) + str(args.temp) + ".pkl"
-    pkl_file = open(file_name, 'wb')
-    pickle.dump(all_outputs_lst, pkl_file)
-    pkl_file.close()
+    # file_name = "stability-outputs-lst_ep-" + args.swa + args.seeds + str(
+    #     args.attention) + str(
+    #     args.dataset) + str(args.encoder) + str(args.temp) + ".pkl"
+    # pkl_file = open(file_name, 'wb')
+    # pickle.dump(all_outputs_lst, pkl_file)
+    # pkl_file.close()
