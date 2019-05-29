@@ -17,6 +17,7 @@ from Transparency.model.modules.Decoder import AttnDecoderQA
 from Transparency.model.modules.Encoder import Encoder
 
 from .modelUtils import jsd as js_divergence
+from torchcontrib.optim import SWA
 
 file_name = os.path.abspath(__file__)
 
@@ -105,6 +106,11 @@ class Model() :
         self.time_str = time.ctime().replace(' ', '_')
         self.dirname = os.path.join(basepath, dirname, self.time_str)
 
+        self.swa_settings = configuration['training']['swa']
+        if self.swa_settings[0]:
+            self.swa_all_optim = SWA(self.optim)
+            self.running_correlations = []
+
     @classmethod
     def init_from_config(cls, dirname, **kwargs) :
         config = json.load(open(dirname + '/config.json', 'r'))
@@ -112,6 +118,46 @@ class Model() :
         obj = cls(config)
         obj.load_values(dirname)
         return obj
+
+    def get_param_buffer_correlations(self):
+        for p in self.swa_all_optim.param_groups[0]['params']:
+            param_state = self.swa_all_optim.state[p]
+            if 'swa_buffer' not in param_state:
+                self.swa_all_optim.update_swa()
+
+        correlations = []
+        for p in np.array(self.swa_all_optim.param_groups[0]['params']):
+            param_state = self.swa_all_optim.state[p]
+            buf = np.squeeze(
+                param_state['swa_buffer'].cpu().numpy())
+            cur_state = np.squeeze(p.data.cpu().numpy())
+            # d_correlation = distance_correlation(buf,
+            #                                      cur_state)
+            norm = np.linalg.norm(buf - cur_state)
+            correlations.append(norm)
+        return np.mean(correlations)
+
+    def total_iter_num(self):
+        return self.swa_all_optim.param_groups[0]['step_counter']
+
+    def iter_for_swa_update(self, iter_num):
+        return iter_num > self.swa_settings[1] \
+               and iter_num % self.swa_settings[2] == 0
+
+
+    def check_and_update_swa(self):
+        swa_cor_greater_than = np.sign(self.swa_settings[4])
+        if self.iter_for_swa_update(self.total_iter_num()):
+            cur_step_correlation = self.get_param_buffer_correlations()
+            if not self.running_correlations:
+                running_mean = 0
+            else:
+                running_mean = np.mean(self.running_correlations)
+            self.running_correlations.append(cur_step_correlation)
+
+            if (running_mean * swa_cor_greater_than) > (
+                cur_step_correlation * swa_cor_greater_than) or self.swa_settings[3]:
+                self.swa_all_optim.update_swa()
 
     def train(self, train_data, train=True) :
         docs_in = train_data.P
@@ -163,9 +209,16 @@ class Model() :
                 loss += batch_data.reg_loss
 
             if train :
-                self.optim.zero_grad()
-                loss.backward()
-                self.optim.step()
+                if self.swa_settings[0]:
+                    self.check_and_update_swa()
+
+                    self.swa_all_optim.zero_grad()
+                    loss.backward()
+                    self.swa_all_optim.step()
+                else:
+                    self.optim.zero_grad()
+                    loss.backward()
+                    self.optim.step()
 
             loss_total += float(loss.data.cpu().item())
         return loss_total*bsize/N
