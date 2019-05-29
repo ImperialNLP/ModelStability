@@ -65,9 +65,9 @@ if __name__ == "__main__":
                 dataset, encoders, args.iters)
             # generate_graphs_on_encoders(dataset, encoders)
         if args.attention in ['dot', 'all']:
-            encoders = [e + '_dot' for e in encoders]
+            encoders_temp = [e + '_dot' for e in encoders]
             preds, atns = train_dataset_and_get_atn_map(
-                dataset, encoders, args.iters)
+                dataset, encoders_temp, args.iters)
             # generate_graphs_on_encoders(dataset, encoders)
         all_outputs.append((preds, atns))
 
