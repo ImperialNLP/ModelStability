@@ -267,7 +267,6 @@ class Model() :
 
             
 
-        import ipdb; ipdb.set_trace()
         outputs = [x for y in outputs for x in y]
         attns = [x for y in attns for x in y]
         scores = [x for y in scores for x in y]
