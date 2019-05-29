@@ -158,8 +158,6 @@ class Model() :
             if (cur_step_diff_norm * greater_than) > (
                 running_mean_norm * greater_than):
                 self.swa_all_optim.update_swa()
-            else:
-                print("No")
 
 
     def train(self, data_in, target_in, train=True) :
