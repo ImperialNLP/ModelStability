@@ -8,7 +8,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 from allennlp.common import Params
-from dcor import distance_correlation
 from sklearn.utils import shuffle
 from tqdm import tqdm
 from torchcontrib.optim import SWA
