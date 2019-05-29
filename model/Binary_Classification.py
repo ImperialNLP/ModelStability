@@ -108,7 +108,7 @@ class Model() :
             # self.decoder_optim = SWA(self.decoder_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
             # self.encoder_optim = SWA(self.encoder_optim, swa_start=3, swa_freq=1, swa_lr=0.05)
             self.swa_all_optim = SWA(self.all_optim)
-            self.running_correlations = []
+            self.running_norms = []
 
     @classmethod
     def init_from_config(cls, dirname, **kwargs) :
@@ -146,21 +146,21 @@ class Model() :
                and iter_num % self.swa_settings[2] == 0
 
     def check_and_update_swa(self):
-        swa_cor_greater_than = np.sign(self.swa_settings[4])
+        greater_than = np.sign(self.swa_settings[4])
         if self.iter_for_swa_update(self.total_iter_num()):
-            cur_step_correlation = self.get_param_buffer_correlations()
-            if not self.running_correlations:
-                running_mean = 0
+            cur_step_diff_norm = self.get_param_buffer_correlations()
+            if not self.running_norms:
+                running_mean_norm = 0
             else:
-                running_mean = np.mean(self.running_correlations)
+                running_mean_norm = np.mean(self.running_norms)
 
-            if cur_step_correlation > 0:
-                self.running_correlations.append(cur_step_correlation)
+            if cur_step_diff_norm > 0:
+                self.running_norms.append(cur_step_diff_norm)
 
-            if (running_mean * swa_cor_greater_than) > (
-                cur_step_correlation * swa_cor_greater_than):
+            if (cur_step_diff_norm * greater_than) > (
+                running_mean_norm * greater_than):
                 self.swa_all_optim.update_swa()
-                print("Yes", running_mean, cur_step_correlation)
+                print("Yes", running_mean_norm, cur_step_diff_norm)
             else:
                 print("No")
 
@@ -229,7 +229,7 @@ class Model() :
             # self.encoder_optim.swap_swa_sgd()
             # self.decoder_optim.swap_swa_sgd()
             self.swa_all_optim.swap_swa_sgd()
-            self.running_correlations = []
+            self.running_norms = []
 
 
         return loss_total*bsize/N
