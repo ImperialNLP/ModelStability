@@ -154,12 +154,14 @@ class Model() :
             else:
                 running_mean = np.mean(self.running_correlations)
 
+            if cur_step_correlation > 0:
+                self.running_correlations.append(cur_step_correlation)
+
             if (running_mean * swa_cor_greater_than) > (
                 cur_step_correlation * swa_cor_greater_than):
                 self.swa_all_optim.update_swa()
                 print("Yes", running_mean, cur_step_correlation)
             else:
-                self.running_correlations.append(cur_step_correlation)
                 print("No")
 
     def train(self, data_in, target_in, train=True) :
