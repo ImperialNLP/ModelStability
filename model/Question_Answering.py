@@ -238,6 +238,7 @@ class Model() :
 
         outputs = []
         attns = []
+        scores = []
         for n in tqdm(range(0, N, bsize)) :
             torch.cuda.empty_cache()
             batch_doc = docs[n:n+bsize]
@@ -261,15 +262,17 @@ class Model() :
                 attns.append(attn.cpu().data.numpy())
 
             predict = batch_data.predict.cpu().data.numpy()
-            outputs.append(prediction_scores)
+            outputs.append(predict)
+            scores.append(prediction_scores)
 
             
 
         import ipdb; ipdb.set_trace()
         outputs = [x for y in outputs for x in y]
         attns = [x for y in attns for x in y]
-        
-        return outputs, attns
+        scores = [x for y in scores for x in y]
+
+        return outputs, attns, scores
 
     def save_values(self, use_dirname=None, save_model=True) :
         if use_dirname is not None :

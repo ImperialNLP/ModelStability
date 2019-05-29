@@ -13,8 +13,8 @@ def train_dataset_and_get_atn_map(dataset, encoders, num_iters=15):
         # Get train losses as well?
 
         evaluator = Evaluator(dataset, trainer.model.dirname)
-        predictions, attentions = evaluator.evaluate(dataset.test_data, save_results=True)
-        return predictions, attentions
+        _, attentions, scores = evaluator.evaluate(dataset.test_data, save_results=True)
+        return scores, attentions
 
 def train_dataset(dataset, config):
     try:
