@@ -125,8 +125,8 @@ class Model() :
                 self.swa_all_optim.update_swa()
 
         correlations = []
-        for p in np.array(self.swa_all_optim.param_groups[0]['params'])[[1, 2, 5, 6, 9]]:
-        # for p in np.array(self.swa_all_optim.param_groups[0]['params'])[[6, 9]]:
+        # for p in np.array(self.swa_all_optim.param_groups[0]['params'])[[1, 2, 5, 6, 9]]:
+        for p in np.array(self.swa_all_optim.param_groups[0]['params'])[[6, 9]]:
             param_state = self.swa_all_optim.state[p]
             buf = np.squeeze(
                 param_state['swa_buffer'].cpu().numpy())
