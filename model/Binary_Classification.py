@@ -154,15 +154,13 @@ class Model() :
             else:
                 running_mean_norm = np.mean(self.running_norms)
 
-            if cur_step_diff_norm > 0:
-                self.running_norms.append(cur_step_diff_norm)
-
             if (cur_step_diff_norm * greater_than) > (
                 running_mean_norm * greater_than):
                 self.swa_all_optim.update_swa()
                 self.running_norms = [cur_step_diff_norm]
                 print("Yes", running_mean_norm, cur_step_diff_norm)
-            else:
+            elif cur_step_diff_norm > 0:
+                self.running_norms.append(cur_step_diff_norm)
                 print("No")
 
     def train(self, data_in, target_in, train=True) :
