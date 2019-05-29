@@ -20,7 +20,7 @@ def get_parser():
     parser.add_argument('--seeds', nargs='?', default='[1,1024,2**30,43,789]',
                         help='Seeds for runs.')
     parser.add_argument('--swa', nargs='?', default='[0,0,0,0,0,0]',
-                        help='Enable Stochastic Weighted Averaging (active, start_val, freq, learning-rate, greater-than correlation, correlation-threshold).')
+                        help='Enable Stochastic Weighted Averaging (use SWA?, start iter, frequency, ignore running norm, greater-than running norm, running norm-threshold).')
     parser.add_argument("--temp", type=float, default=1)
 
     parser.add_argument("--iters", type=int, default=20)
