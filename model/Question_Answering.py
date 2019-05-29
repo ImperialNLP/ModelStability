@@ -262,9 +262,10 @@ class Model() :
 
             predict = batch_data.predict.cpu().data.numpy()
             outputs.append(prediction_scores)
-            
+
             
 
+        import ipdb; ipdb.set_trace()
         outputs = [x for y in outputs for x in y]
         attns = [x for y in attns for x in y]
         
