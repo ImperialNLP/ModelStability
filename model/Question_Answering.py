@@ -254,13 +254,14 @@ class Model() :
             self.Qencoder(batch_data.Q)
             self.decoder(batch_data)
 
+            prediction_scores = batch_data.predict.cpu().data.numpy()
             batch_data.predict = torch.argmax(batch_data.predict, dim=-1)
             if self.decoder.use_attention :
                 attn = batch_data.attn
                 attns.append(attn.cpu().data.numpy())
 
             predict = batch_data.predict.cpu().data.numpy()
-            outputs.append(predict)
+            outputs.append(prediction_scores)
             
             
 
