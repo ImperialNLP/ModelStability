@@ -156,6 +156,9 @@ class Model() :
             if (running_mean * swa_cor_greater_than) > (
                 cur_step_correlation * swa_cor_greater_than) or self.swa_settings[3]:
                 self.swa_all_optim.update_swa()
+                print("Yes")
+            else:
+                print("No")
 
     def train(self, data_in, target_in, train=True) :
         sorting_idx = get_sorting_index_with_noise_from_lengths([len(x) for x in data_in], noise_frac=0.1)
