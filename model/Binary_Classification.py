@@ -134,6 +134,7 @@ class Model() :
             #                                      cur_state)
             norm = np.linalg.norm(buf - cur_state)
             correlations.append(norm)
+        print(correlations)
         return np.mean(correlations)
 
     def total_iter_num(self):
