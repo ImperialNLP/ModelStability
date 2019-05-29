@@ -222,6 +222,14 @@ class Model() :
                     self.optim.step()
 
             loss_total += float(loss.data.cpu().item())
+        if self.swa_settings[0] and self.swa_all_optim.param_groups[0][
+            'step_counter'] > self.swa_settings[1]:
+            print("\nSWA swapping\n")
+            # self.attn_optim.swap_swa_sgd()
+            # self.encoder_optim.swap_swa_sgd()
+            # self.decoder_optim.swap_swa_sgd()
+            self.swa_all_optim.swap_swa_sgd()
+            self.running_correlations = []
         return loss_total*bsize/N
 
     def evaluate(self, data) :
