@@ -191,7 +191,7 @@ class Model() :
             bce_loss = (bce_loss * weight).mean(1).sum()
 
             loss = bce_loss
-            self.train_losses.append(bce_loss)
+            self.train_losses.append(bce_loss.detach().cpu().numpy() + 0)
 
             if hasattr(batch_data, 'reg_loss') :
                 loss += batch_data.reg_loss
