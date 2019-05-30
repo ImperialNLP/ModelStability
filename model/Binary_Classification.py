@@ -88,9 +88,8 @@ class Model() :
         self.adversarymulti = AdversaryMulti(decoder=self.decoder)
 
         self.all_params = self.encoder_params + self.attn_params + self.decoder_params
-        # self.all_optim = torch.optim.Adam(self.all_params, lr=0.001, weight_decay=weight_decay, amsgrad=True)
-        # TODO: Change back to Adam
-        self.all_optim = adagrad.Adagrad(self.all_params, weight_decay=weight_decay)
+        self.all_optim = torch.optim.Adam(self.all_params, lr=0.001, weight_decay=weight_decay, amsgrad=True)
+        # self.all_optim = adagrad.Adagrad(self.all_params, weight_decay=weight_decay)
 
 
         pos_weight = configuration['training'].get('pos_weight', [1.0]*self.decoder.output_size)
