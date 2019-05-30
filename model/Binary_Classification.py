@@ -87,7 +87,12 @@ class Model() :
         self.adversarymulti = AdversaryMulti(decoder=self.decoder)
 
         self.all_params = self.encoder_params + self.attn_params + self.decoder_params
-        self.all_optim = torch.optim.Adam(self.all_params, lr=0.001, weight_decay=weight_decay, amsgrad=True)
+        # self.all_optim = torch.optim.Adam(self.all_params, lr=0.001, weight_decay=weight_decay, amsgrad=True)
+        # TODO: Change back to Adam
+        self.all_optim = torch.optim.SGD(self.all_params, lr=0.001,
+                                         weight_decay=weight_decay,
+                                         nesterov=True)
+
 
         pos_weight = configuration['training'].get('pos_weight', [1.0]*self.decoder.output_size)
         self.pos_weight = torch.Tensor(pos_weight).to(device)
