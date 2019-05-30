@@ -149,6 +149,9 @@ class Model() :
         greater_than = np.sign(self.swa_settings[3])
         if self.iter_for_swa_update(self.total_iter_num()):
             cur_step_diff_norm = self.get_param_buffer_norms()
+            if greater_than == -1:
+                self.swa_all_optim.update_swa()
+                return
             if not self.running_norms:
                 running_mean_norm = 0
             else:
