@@ -136,6 +136,8 @@ class Model() :
             cur_state = np.squeeze(p.data.cpu().numpy())
             norm = np.linalg.norm(buf - cur_state)
             norms.append(norm)
+        if self.swa_settings[3] == 2:
+            return np.max(norms)
         return np.mean(norms)
 
     def total_iter_num(self):
@@ -146,10 +148,9 @@ class Model() :
                and iter_num % self.swa_settings[2] == 0
 
     def check_and_update_swa(self):
-        greater_than = np.sign(self.swa_settings[3])
         if self.iter_for_swa_update(self.total_iter_num()):
             cur_step_diff_norm = self.get_param_buffer_norms()
-            if greater_than == -1:
+            if self.swa_settings[3] == 0:
                 self.swa_all_optim.update_swa()
                 return
             if not self.running_norms:
@@ -157,8 +158,7 @@ class Model() :
             else:
                 running_mean_norm = np.mean(self.running_norms)
 
-            if (cur_step_diff_norm * greater_than) > (
-                running_mean_norm * greater_than):
+            if cur_step_diff_norm > running_mean_norm:
                 self.swa_all_optim.update_swa()
                 self.running_norms = [cur_step_diff_norm]
             elif cur_step_diff_norm > 0:
