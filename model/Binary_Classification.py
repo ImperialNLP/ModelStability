@@ -125,8 +125,8 @@ class Model() :
                 self.swa_all_optim.update_swa()
 
         norms = []
-        for p in np.array(self.swa_all_optim.param_groups[0]['params'])[[1, 2, 5, 6, 9]]:
-        # for p in np.array(self.swa_all_optim.param_groups[0]['params'])[[6, 9]]:
+        # for p in np.array(self.swa_all_optim.param_groups[0]['params'])[[1, 2, 5, 6, 9]]:
+        for p in np.array(self.swa_all_optim.param_groups[0]['params'])[[6, 9]]:
             param_state = self.swa_all_optim.state[p]
             buf = np.squeeze(
                 param_state['swa_buffer'].cpu().numpy())
@@ -151,12 +151,12 @@ class Model() :
             else:
                 running_mean_norm = np.mean(self.running_norms)
 
-            self.running_norms.append(cur_step_diff_norm)
-
             if (cur_step_diff_norm * greater_than) > (
                 running_mean_norm * greater_than):
                 self.swa_all_optim.update_swa()
-
+                self.running_norms = [cur_step_diff_norm]
+            elif cur_step_diff_norm > 0:
+                self.running_norms.append(cur_step_diff_norm)
 
     def train(self, data_in, target_in, train=True) :
         sorting_idx = get_sorting_index_with_noise_from_lengths([len(x) for x in data_in], noise_frac=0.1)
