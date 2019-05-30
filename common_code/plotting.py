@@ -33,7 +33,8 @@ def adjust_gridspec() :
     plt.tight_layout()
 
 def show_gridspec() :
-    plt.show()
+    # plt.show()
+    return
 
 def set_square_aspect(axes) :
     x0,x1 = axes.get_xlim()
