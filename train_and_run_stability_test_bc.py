@@ -40,6 +40,7 @@ if __name__ == "__main__":
     from Transparency.Trainers.DatasetBC import *
     from Transparency.ExperimentsBC import *
     from common_code.common import pickle_to_file
+    from torch.backends import cudnn
 
     dataset = datasets[args.dataset](args)
 
@@ -58,6 +59,8 @@ if __name__ == "__main__":
         np.random.seed(pseudo_random_seed)
         random.seed(pseudo_random_seed)
         torch.manual_seed(pseudo_random_seed)
+        cudnn.deterministic = True
+        cudnn.benchmark = False
         preds, atns, preds_lst, atns_lst = [], [], [], []
         if args.loss:
             train_losses = []
