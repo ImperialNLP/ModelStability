@@ -4,6 +4,7 @@ import shutil
 from copy import deepcopy
 from typing import Dict
 
+from torch.optim import adagrad
 import numpy as np
 import torch
 import torch.nn as nn
@@ -89,9 +90,7 @@ class Model() :
         self.all_params = self.encoder_params + self.attn_params + self.decoder_params
         # self.all_optim = torch.optim.Adam(self.all_params, lr=0.001, weight_decay=weight_decay, amsgrad=True)
         # TODO: Change back to Adam
-        self.all_optim = torch.optim.SGD(self.all_params, lr=0.001,
-                                         weight_decay=weight_decay,
-                                         nesterov=True)
+        self.all_optim = adagrad.Adagrad(self.all_params, weight_decay=weight_decay)
 
 
         pos_weight = configuration['training'].get('pos_weight', [1.0]*self.decoder.output_size)
