@@ -92,6 +92,11 @@ class Evaluator() :
             grads = self.model.gradient_mem(test_data.X)
             pdump(self.model, grads, 'gradients')
 
+    def gradient_experiment_get_grads(self, test_data) :
+        grads = self.model.gradient_mem(test_data)
+        # pdump(self.model, grads, 'gradients')
+        return grads
+
     def logodds_attention_experiment(self, test_data, logodds, save_results=False) :
         logodds_combined = defaultdict(float)
         for e in logodds :

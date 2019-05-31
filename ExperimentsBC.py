@@ -142,6 +142,21 @@ def eval_swa_model(dataset, top_lvl_models_dir):
     _ = evaluator.evaluate(dataset.test_data, save_results=True)
     return evaluator
 
+def train_dataset_and_get_gradient(dataset, encoders, num_iters=15):
+    for e in encoders:
+        config = configurations[e](dataset)
+        trainer = Trainer(dataset, config=config,
+                          _type=dataset.trainer_type)
+        trainer.train(dataset.train_data, dataset.dev_data, n_iters=num_iters,
+                      save_on_metric=dataset.save_on_metric)
+
+        evaluator = Evaluator(dataset, trainer.model.dirname,
+                              _type=dataset.trainer_type)
+
+        grads = evaluator.gradient_experiment_get_grads(dataset.test_data)
+        from Trainers.PlottingBC import process_grads
+        process_grads(grads)
+        return grads
 
 def run_experiments_on_latest_model(dataset, config='lstm', force_run=True) :
     try :
