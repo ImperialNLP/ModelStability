@@ -39,20 +39,20 @@ if __name__ == "__main__":
         torch.manual_seed(pseudo_random_seed)
         cudnn.deterministic = True
         cudnn.benchmark = False
-        grads = []
+        atns, preds, grads = [], [], []
         if args.loss:
             train_losses = []
 
         if args.attention in ['tanh', 'all']:
-            grads = train_dataset_and_get_gradient(
+            preds, atns, grads = train_dataset_and_get_gradient(
                 dataset, encoders, args.iters)
 
         if args.attention in ['dot', 'all']:
             encoders_temp = [e + '_dot' for e in encoders]
-            grads = train_dataset_and_get_gradient(
+            preds, atns, grads = train_dataset_and_get_gradient(
                 dataset, encoders_temp, args.iters)
 
-        all_grad_outputs.append([grads])
+        all_grad_outputs.append((preds, grads, atns))
 
     run_settings_str = args.name + args.swa + args.seeds + str(
         args.attention) + str(args.dataset) + str(args.encoder) + str(args.temp)
