@@ -92,7 +92,7 @@ def do_analysis_on_test(test_num):
         print('new', sorted_vec2, '\n\n')
 
 
-filename = '../final-pkl-files-old/stability-outputs-[0,0,0,0][1,1024,2**30,43,789,1537,7771,2**18,99999,13]tanhsstlstm1.pkl'
+filename = '../final-pkl-files/gradient-outputs-[0,0,0,0][1,1024,2**30,43,789,1537,7771,2**18,99999,13]tanhDiabetescnn1.pkl'
 
 vec = pickle.load(open('../preprocess/SST/vec_sst.p', 'rb'))
 Xt, yt = vec.seq_text['test'], vec.label['test']
