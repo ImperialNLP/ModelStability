@@ -6,6 +6,7 @@ import sys
 
 sys.path.append('/home/ubuntu/')
 sys.path.append('/data/rishabh/')
+sys.path.append('/data/rishabh/Transparency')
 from Transparency.Trainers.DatasetBC import filterbylength, sortbylength
 from scripts.atn_weight_stability import get_all_outputs
 
