@@ -8,7 +8,12 @@ sys.path.append('/home/ubuntu/')
 sys.path.append('/data/rishabh/')
 sys.path.append('/data/rishabh/Transparency')
 from Transparency.Trainers.DatasetBC import filterbylength, sortbylength
-from scripts.atn_weight_stability import get_all_outputs
+
+
+def get_all_outputs(filename):
+    all_outputs = pickle.load(
+        open(filename, 'rb'))
+    return all_outputs
 
 
 def get_high_entropy_cases():
@@ -44,15 +49,22 @@ def get_high_entropy_cases():
         print(' '.join(test_case_text))
         print(max_entropy_case[3],
               max_entropy_case[4])
-        sorted_vec1 = sorted(vec_1_map.items(), key=lambda kv: kv[1], reverse=True)
-        sorted_vec2 = sorted(vec_2_map.items(), key=lambda kv: kv[1], reverse=True)
+        sorted_vec1 = sorted(vec_1_map.items(), key=lambda kv: kv[1],
+                             reverse=True)
+        sorted_vec2 = sorted(vec_2_map.items(), key=lambda kv: kv[1],
+                             reverse=True)
         print(sorted_vec1)
         print(sorted_vec2, '\n\n')
 
+
 def do_analysis_on_test(test_num):
     num_models = 10
-    og_all_outputs = get_all_outputs("../final-pkl-files-old/stability-outputs-[0,0,0,0][1,1024,2**30,43,789,1537,7771,2**18,99999,13]tanhsstlstm1.pkl")[:num_models]
-    stable_all_outputs = get_all_outputs("../final-pkl-files-old/stability-outputs-[1,1,1,0][1,1024,2**30,43,789,1537,7771,2**18,99999,13]tanhsstlstm1.pkl")[:num_models]
+    og_all_outputs = get_all_outputs(
+        "../final-pkl-files-old/stability-outputs-[0,0,0,0][1,1024,2**30,43,789,1537,7771,2**18,99999,13]tanhsstlstm1.pkl")[
+                     :num_models]
+    stable_all_outputs = get_all_outputs(
+        "../final-pkl-files-old/stability-outputs-[1,1,1,0][1,1024,2**30,43,789,1537,7771,2**18,99999,13]tanhsstlstm1.pkl")[
+                         :num_models]
     og_atns = []
     new_atns = []
     for model_idx in range(len(og_all_outputs)):
@@ -71,11 +83,14 @@ def do_analysis_on_test(test_num):
             word = test_case_text[j]
             vec_1_map[word] = og_atn_vec[j] // 0.01 / 100
             vec_2_map[word] = new_atn_vec[j] // 0.01 / 100
-        sorted_vec1 = sorted(vec_1_map.items(), key=lambda kv: kv[1], reverse=True)
-        sorted_vec2 = sorted(vec_2_map.items(), key=lambda kv: kv[1], reverse=True)
+        sorted_vec1 = sorted(vec_1_map.items(), key=lambda kv: kv[1],
+                             reverse=True)
+        sorted_vec2 = sorted(vec_2_map.items(), key=lambda kv: kv[1],
+                             reverse=True)
 
         print('og', sorted_vec1)
         print('new', sorted_vec2, '\n\n')
+
 
 filename = '../final-pkl-files-old/stability-outputs-[0,0,0,0][1,1024,2**30,43,789,1537,7771,2**18,99999,13]tanhsstlstm1.pkl'
 
