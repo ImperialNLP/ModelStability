@@ -98,5 +98,5 @@ vec = pickle.load(open('../preprocess/SST/vec_sst.p', 'rb'))
 Xt, yt = vec.seq_text['test'], vec.label['test']
 Xt, yt = filterbylength(Xt, yt, min_length=5)
 Xt, yt = sortbylength(Xt, yt)
-# get_high_entropy_cases()
-do_analysis_on_test(1553)
+get_high_entropy_cases()
+# do_analysis_on_test(1553)
