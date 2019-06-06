@@ -94,7 +94,7 @@ def do_analysis_on_test(test_num):
 
 filename = '../final-pkl-files/gradient-outputs-[0,0,0,0][1,1024,2**30,43,789,1537,7771,2**18,99999,13]tanhDiabetescnn1.pkl'
 
-vec = pickle.load(open('../preprocess/SST/vec_sst.p', 'rb'))
+vec = pickle.load(open('../preprocess/SST/vec_diabetes.p', 'rb'))
 Xt, yt = vec.seq_text['test'], vec.label['test']
 Xt, yt = filterbylength(Xt, yt, min_length=5)
 Xt, yt = sortbylength(Xt, yt)
