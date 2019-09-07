@@ -302,6 +302,7 @@ class Model() :
                 g1 = batch_data.hidden.grad.sum(-1)
                 grads_H.append(g1.cpu().data.numpy())
 
+            import ipdb; ipdb.set_trace()
             grads_xxe = np.array(grads_xxe).swapaxes(0, 1)
             grads_xxex = np.array(grads_xxex).swapaxes(0, 1)
             grads_H = np.array(grads_H).swapaxes(0, 1)
