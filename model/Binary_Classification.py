@@ -239,7 +239,8 @@ class Model() :
         self.encoder(input_data)
         self.decoder(input_data)
         input_data.predict = torch.sigmoid(input_data.predict / self.temperature)
-        return input_data.predict.cpu().data.numpy()
+        pred = input_data.predict.cpu().data.numpy()
+        return [[x[0], 1-x[0]] for x in pred]
 
     def evaluate(self, data) :
         self.encoder.eval()
