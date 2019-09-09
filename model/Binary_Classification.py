@@ -234,6 +234,13 @@ class Model() :
 
         return loss_total*bsize/N
 
+    def my_predict(self, input_data):
+        input_data = BatchHolder(input_data)
+        self.encoder(input_data)
+        self.decoder(input_data)
+        input_data.predict = torch.sigmoid(input_data.predict / self.temperature)
+        return input_data.predict.cpu().data.numpy()
+
     def evaluate(self, data) :
         self.encoder.eval()
         self.decoder.eval()
