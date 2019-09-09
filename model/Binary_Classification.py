@@ -272,8 +272,13 @@ class Model() :
             attns = [x for y in attns for x in y]
 
         import lime
+        import lime
+        import sklearn
+        from lime.lime_tabular import LimeTabularExplainer
+        explainer = LimeTabularExplainer(class_names=["A", "B"])
         import ipdb;
         ipdb.set_trace()
+
         return outputs, attns
 
     def gradient_mem(self, data) :
