@@ -263,6 +263,9 @@ class Model() :
         if self.decoder.use_attention :
             attns = [x for y in attns for x in y]
 
+        import lime
+        import ipdb;
+        ipdb.set_trace()
         return outputs, attns
 
     def gradient_mem(self, data) :
