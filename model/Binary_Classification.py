@@ -271,13 +271,15 @@ class Model() :
         if self.decoder.use_attention :
             attns = [x for y in attns for x in y]
 
-        import lime
-        import lime
-        import sklearn
-        from lime.lime_tabular import LimeTabularExplainer
-        explainer = LimeTabularExplainer(class_names=["A", "B"])
-        import ipdb;
-        ipdb.set_trace()
+        import pickle
+        from lime.lime_text import LimeTextExplainer
+        from sklearn.pipeline import make_pipeline
+        vec = pickle.load(open('../preprocess/SST/vec_sst.p', 'rb'))
+        explainer = LimeTextExplainer(class_names=["A", "B"])
+        # c = make_pipeline(vec, rf)
+        # explainer.explain_instance(data[idx], c.predict_proba,
+        #                            num_features=6)
+        import ipdb; ipdb.set_trace()
 
         return outputs, attns
 
