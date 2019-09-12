@@ -244,9 +244,13 @@ class Model() :
         self.decoder(text_permutations)
         text_permutations.predict = torch.sigmoid(text_permutations.predict)
         pred = text_permutations.predict.cpu().data.numpy()
-
+        import math
         ret_val = [[pred_i[0], 1-pred_i[0]] for pred_i in pred]
-        return np.array(ret_val)
+        ret_val = np.array(ret_val)
+        for i in range(len(pred)):
+            if math.isnan(pred[i][0]):
+                print(inp_text_permutations[i])
+        return ret_val
 
     def evaluate(self, data) :
         self.encoder.eval()
