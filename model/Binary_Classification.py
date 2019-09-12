@@ -250,6 +250,7 @@ class Model() :
         for i in range(len(pred)):
             if math.isnan(pred[i][0]):
                 print(inp_text_permutations[i])
+        import ipdb; ipdb.set_trace()
         return ret_val
 
     def evaluate(self, data) :
