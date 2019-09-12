@@ -236,17 +236,16 @@ class Model() :
 
         return loss_total*bsize/N
 
-    def predictor(self, inp_text):
-        import ipdb;
-        ipdb.set_trace()
-        inp_text = [sst_vec.map2idxs(inp_text.split())]
-        inp_text = BatchHolder(inp_text)
-        self.encoder(inp_text)
-        self.decoder(inp_text)
-        inp_text.predict = torch.sigmoid(inp_text.predict / self.temperature)
-        pred = inp_text.predict.cpu().data.numpy()
+    def predictor(self, text_permutations):
 
-        return [pred[0], 1-pred[0]]
+        text_permutations = [sst_vec.map2idxs(x.split()) for x in text_permutations]
+        text_permutations = BatchHolder(text_permutations)
+        self.encoder(text_permutations)
+        self.decoder(text_permutations)
+        text_permutations.predict = torch.sigmoid(text_permutations.predict / self.temperature)
+        pred = text_permutations.predict.cpu().data.numpy()
+
+        return [[pred_i, 1-pred_i] for pred_i in pred]
 
     def evaluate(self, data) :
         self.encoder.eval()
@@ -280,9 +279,10 @@ class Model() :
         from lime.lime_text import LimeTextExplainer
         explainer = LimeTextExplainer(class_names=["A", "B"])
 
-        explainer.explain_instance(' '.join(sst_vec.map2words(data[17])), self.predictor,
+        exp = explainer.explain_instance(' '.join(sst_vec.map2words(data[17])), self.predictor,
                                    num_features=6)
-
+        import ipdb;
+        ipdb.set_trace()
 
 
         return outputs, attns
