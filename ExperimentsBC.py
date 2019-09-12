@@ -24,6 +24,18 @@ def train_dataset(dataset, config='lstm') :
     except :
         return
 
+def train_dataset_and_get_lime_explanations(dataset, encoders, num_iters=15):
+    for e in encoders:
+        config = configurations[e](dataset)
+        trainer = Trainer(dataset, config=config,
+                          _type=dataset.trainer_type)
+        trainer.train(dataset.train_data, dataset.dev_data, n_iters=num_iters,
+                      save_on_metric=dataset.save_on_metric)
+        train_losses = trainer.model.train_losses
+
+        lime_explanations = trainer.model.get_lime_explanations(dataset.test_data)
+        return lime_explanations
+
 
 def train_dataset_and_get_atn_map(dataset, encoders, num_iters=15):
     for e in encoders:

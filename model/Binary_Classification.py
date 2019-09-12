@@ -24,6 +24,8 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 import pickle
 sst_vec = pickle.load(open('./preprocess/SST/vec_sst.p', 'rb'))
 
+from lime.lime_text import LimeTextExplainer
+
 class AdversaryMulti(nn.Module) :
     def __init__(self, decoder=None) :
         super().__init__()
@@ -281,17 +283,21 @@ class Model() :
         outputs = [x for y in outputs for x in y]
         if self.decoder.use_attention :
             attns = [x for y in attns for x in y]
-
-        from lime.lime_text import LimeTextExplainer
-        explainer = LimeTextExplainer(class_names=["A", "B"])
-
-        exp = explainer.explain_instance(' '.join(sst_vec.map2words(data[17])), self.predictor,
-                num_features=2)
-        import ipdb;
-        ipdb.set_trace()
-
-
         return outputs, attns
+
+    def get_lime_explanations(self, data):
+        explanations = []
+        explainer = LimeTextExplainer(class_names=["A", "B"])
+        for data_i in data:
+            sentence = ' '.join(sst_vec.map2words(data_i))
+            exp = explainer.explain_instance(
+                text_instance=sentence,
+                classifier_fn=self.predictor,
+                num_features=len(data_i),
+                num_samples=500).as_list()
+            explanations.append(exp)
+            import ipdb; ipdb.set_trace()
+        return explanations
 
     def gradient_mem(self, data) :
         self.encoder.train()
