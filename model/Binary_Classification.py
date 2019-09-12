@@ -274,12 +274,12 @@ class Model() :
         import pickle
         from lime.lime_text import LimeTextExplainer
         from sklearn.pipeline import make_pipeline
-        vec = pickle.load(open('../preprocess/SST/vec_sst.p', 'rb'))
         explainer = LimeTextExplainer(class_names=["A", "B"])
         # c = make_pipeline(vec, rf)
         # explainer.explain_instance(data[idx], c.predict_proba,
         #                            num_features=6)
         import ipdb; ipdb.set_trace()
+        vec = pickle.load(open('../preprocess/SST/vec_sst.p', 'rb'))
 
         return outputs, attns
 
