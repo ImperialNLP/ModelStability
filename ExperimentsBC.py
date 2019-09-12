@@ -33,7 +33,8 @@ def train_dataset_and_get_lime_explanations(dataset, encoders, num_iters=15):
                       save_on_metric=dataset.save_on_metric)
         train_losses = trainer.model.train_losses
 
-        lime_explanations = trainer.model.get_lime_explanations(dataset.test_data)
+        lime_explanations = trainer.model.get_lime_explanations(
+            dataset.test_data.X)
         return lime_explanations
 
 
