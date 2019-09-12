@@ -21,6 +21,8 @@ from .modelUtils import jsd as js_divergence
 
 file_name = os.path.abspath(__file__)
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+import pickle
+sst_vec = pickle.load(open('./preprocess/SST/vec_sst.p', 'rb'))
 
 class AdversaryMulti(nn.Module) :
     def __init__(self, decoder=None) :
@@ -234,7 +236,8 @@ class Model() :
 
         return loss_total*bsize/N
 
-    def my_predict(self, input_data):
+    def predictor(self, input_data):
+        input_data = [sst_vec.map2idxs(arr) for arr in input_data]
         input_data = BatchHolder(input_data)
         self.encoder(input_data)
         self.decoder(input_data)
@@ -271,15 +274,14 @@ class Model() :
         if self.decoder.use_attention :
             attns = [x for y in attns for x in y]
 
-        import pickle
         from lime.lime_text import LimeTextExplainer
-        from sklearn.pipeline import make_pipeline
         explainer = LimeTextExplainer(class_names=["A", "B"])
-        # c = make_pipeline(vec, rf)
-        # explainer.explain_instance(data[idx], c.predict_proba,
-        #                            num_features=6)
-        import ipdb; ipdb.set_trace()
-        vec = pickle.load(open('../preprocess/SST/vec_sst.p', 'rb'))
+        import ipdb;
+        ipdb.set_trace()
+        explainer.explain_instance([sst_vec.map2words(data[17])], self.predictor,
+                                   num_features=6)
+
+
 
         return outputs, attns
 
