@@ -296,7 +296,6 @@ class Model() :
                 num_features=len(data_i),
                 num_samples=500).as_list()
             explanations.append(exp)
-            import ipdb; ipdb.set_trace()
         return explanations
 
     def gradient_mem(self, data) :
