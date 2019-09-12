@@ -3,7 +3,7 @@ import os
 import shutil
 from copy import deepcopy
 from typing import Dict
-
+import math
 from torch.optim import adagrad
 import numpy as np
 import torch
@@ -244,13 +244,13 @@ class Model() :
         self.decoder(text_permutations)
         text_permutations.predict = torch.sigmoid(text_permutations.predict)
         pred = text_permutations.predict.cpu().data.numpy()
-        import math
-        ret_val = [[pred_i[0], 1-pred_i[0]] for pred_i in pred]
-        ret_val = np.array(ret_val)
         for i in range(len(pred)):
             if math.isnan(pred[i][0]):
-                print(inp_text_permutations[i])
-        import ipdb; ipdb.set_trace()
+                pred[i][0] = 0.5
+
+        ret_val = [[pred_i[0], 1-pred_i[0]] for pred_i in pred]
+        ret_val = np.array(ret_val)
+
         return ret_val
 
     def evaluate(self, data) :
