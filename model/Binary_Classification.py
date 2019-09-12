@@ -237,13 +237,14 @@ class Model() :
         return loss_total*bsize/N
 
     def predictor(self, input_data):
-        input_data = [sst_vec.map2idxs(arr) for arr in input_data]
+        input_data = [sst_vec.map2idxs(input_data.split())]
         input_data = BatchHolder(input_data)
         self.encoder(input_data)
         self.decoder(input_data)
         input_data.predict = torch.sigmoid(input_data.predict / self.temperature)
         pred = input_data.predict.cpu().data.numpy()
-        return [[x[0], 1-x[0]] for x in pred]
+        import ipdb; ipdb.set_trace()
+        return [pred[0], 1-pred[0]]
 
     def evaluate(self, data) :
         self.encoder.eval()
@@ -276,8 +277,7 @@ class Model() :
 
         from lime.lime_text import LimeTextExplainer
         explainer = LimeTextExplainer(class_names=["A", "B"])
-        import ipdb;
-        ipdb.set_trace()
+
         explainer.explain_instance([sst_vec.map2words(data[17])], self.predictor,
                                    num_features=6)
 
