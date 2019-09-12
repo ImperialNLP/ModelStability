@@ -237,13 +237,15 @@ class Model() :
         return loss_total*bsize/N
 
     def predictor(self, inp_text):
+        import ipdb;
+        ipdb.set_trace()
         inp_text = [sst_vec.map2idxs(inp_text.split())]
         inp_text = BatchHolder(inp_text)
         self.encoder(inp_text)
         self.decoder(inp_text)
         inp_text.predict = torch.sigmoid(inp_text.predict / self.temperature)
         pred = inp_text.predict.cpu().data.numpy()
-        import ipdb; ipdb.set_trace()
+
         return [pred[0], 1-pred[0]]
 
     def evaluate(self, data) :
