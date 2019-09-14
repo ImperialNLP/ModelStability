@@ -61,21 +61,20 @@ if __name__ == "__main__":
         torch.manual_seed(pseudo_random_seed)
         cudnn.deterministic = True
         cudnn.benchmark = False
-        preds, atns, preds_lst, atns_lst = [], [], [], []
+        preds, atns, lime_explns = None, None, None
         if args.loss:
             train_losses = []
 
         if args.attention in ['tanh', 'all']:
-            preds, atns, preds_lst, atns_lst, train_losses = train_dataset_and_get_lime_explanations(
+            preds, atns, lime_explns = train_dataset_and_get_lime_explanations(
                 dataset, encoders, args.iters)
             # generate_graphs_on_encoders(dataset, encoders)
         if args.attention in ['dot', 'all']:
             encoders_temp = [e + '_dot' for e in encoders]
-            preds, atns, preds_lst, atns_lst, train_losses = train_dataset_and_get_lime_explanations(
+            preds, atns, lime_explns = train_dataset_and_get_lime_explanations(
                 dataset, encoders_temp, args.iters)
             # generate_graphs_on_encoders(dataset, encoders)
-        all_outputs.append((preds, atns))
-        all_outputs_lst.append((preds_lst, atns_lst))
+        all_outputs.append((preds, atns, lime_explns))
 
     run_settings_str = args.name + args.swa + args.seeds + str(
         args.attention) + str(args.dataset) + str(args.encoder) + str(args.temp)
@@ -84,10 +83,3 @@ if __name__ == "__main__":
 
     if args.loss:
         pickle_to_file(train_losses, "train-losses-" + run_settings_str + ".pkl")
-
-    # file_name = "stability-outputs-lst_ep-" + args.swa + args.seeds + str(
-    #     args.attention) + str(
-    #     args.dataset) + str(args.encoder) + str(args.temp) + ".pkl"
-    # pkl_file = open(file_name, 'wb')
-    # pickle.dump(all_outputs_lst, pkl_file)
-    # pkl_file.close()

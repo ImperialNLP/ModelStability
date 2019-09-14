@@ -31,11 +31,15 @@ def train_dataset_and_get_lime_explanations(dataset, encoders, num_iters=15):
                           _type=dataset.trainer_type)
         trainer.train(dataset.train_data, dataset.dev_data, n_iters=num_iters,
                       save_on_metric=dataset.save_on_metric)
-        train_losses = trainer.model.train_losses
+
+        evaluator = Evaluator(dataset, trainer.model.dirname,
+                              _type=dataset.trainer_type)
+        predictions, attentions = evaluator.evaluate(dataset.test_data,
+                                                     save_results=True)
 
         lime_explanations = trainer.model.get_lime_explanations(
             dataset.test_data.X)
-        return lime_explanations
+        return predictions, attentions, lime_explanations
 
 
 def train_dataset_and_get_atn_map(dataset, encoders, num_iters=15):
