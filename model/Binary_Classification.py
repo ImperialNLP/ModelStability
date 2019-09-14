@@ -294,7 +294,7 @@ class Model() :
                 text_instance=sentence,
                 classifier_fn=self.predictor,
                 num_features=len(data_i),
-                num_samples=500).as_list()
+                num_samples=5000).as_list()
             explanations.append(exp)
         return explanations
 
