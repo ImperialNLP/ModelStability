@@ -241,16 +241,26 @@ class Model() :
     def predictor(self, inp_text_permutations):
 
         text_permutations = [dataset_vec.map2idxs(x.split()) for x in inp_text_permutations]
-        text_permutations = BatchHolder(text_permutations)
-        self.encoder(text_permutations)
-        self.decoder(text_permutations)
-        text_permutations.predict = torch.sigmoid(text_permutations.predict)
-        pred = text_permutations.predict.cpu().data.numpy()
-        for i in range(len(pred)):
-            if math.isnan(pred[i][0]):
-                pred[i][0] = 0.5
+        outputs = []
+        bsize = self.bsize
+        N = len(text_permutations)
+        for n in tqdm(range(0, N, bsize)) :
+            torch.cuda.empty_cache()
+            batch_doc = text_permutations[n:n+bsize]
+            batch_data = BatchHolder(batch_doc)
 
-        ret_val = [[pred_i[0], 1-pred_i[0]] for pred_i in pred]
+            self.encoder(batch_data)
+            self.decoder(batch_data)
+
+            batch_data.predict = torch.sigmoid(batch_data.predict)
+
+            pred = batch_data.predict.cpu().data.numpy()
+            for i in range(len(pred)):
+                if math.isnan(pred[i][0]):
+                    pred[i][0] = 0.5
+            outputs.append(pred)
+
+        ret_val = [[output_i[0], 1-output_i[0]] for output_i in outputs]
         ret_val = np.array(ret_val)
 
         return ret_val
