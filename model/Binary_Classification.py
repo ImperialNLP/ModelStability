@@ -303,7 +303,7 @@ class Model() :
             exp = explainer.explain_instance(
                 text_instance=sentence,
                 classifier_fn=self.predictor,
-                num_features=len(data_i),
+                num_features=max(60, len(data_i)),
                 num_samples=5000).as_list()
             explanations.append(exp)
         return explanations
