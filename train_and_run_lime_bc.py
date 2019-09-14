@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     run_settings_str = args.name + args.swa + args.seeds + str(
         args.attention) + str(args.dataset) + str(args.encoder) + str(args.temp)
-    file_name = "stability-outputs-" + run_settings_str + ".pkl"
+    file_name = "lime-outputs-" + run_settings_str + ".pkl"
     pickle_to_file(all_outputs, file_name)
 
     if args.loss:
