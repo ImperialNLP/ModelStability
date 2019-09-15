@@ -261,6 +261,7 @@ class Model() :
             outputs.append(pred)
 
         ret_val = [[output_i[0], 1-output_i[0]] for output_i in outputs]
+        import ipdb; ipdb.set_trace()
         ret_val = np.array(ret_val)
 
         return ret_val
