@@ -242,7 +242,7 @@ class Model() :
 
         text_permutations = [dataset_vec.map2idxs(x.split()) for x in inp_text_permutations]
         outputs = []
-        bsize = self.bsize
+        bsize = 512
         N = len(text_permutations)
         for n in tqdm(range(0, N, bsize)) :
             torch.cuda.empty_cache()
