@@ -4,6 +4,8 @@ from itertools import combinations
 import numpy as np
 import sys
 
+from scripts.atn_weight_stability import calculate_jaccard_similarity_score
+
 sys.path.append('/home/ubuntu/')
 sys.path.append('/data/rishabh/')
 sys.path.append('/data/rishabh/Transparency')
@@ -152,6 +154,62 @@ def get_high_entropy_cases():
             print_map(a)
         print('\n\n\n\n')
 
+def get_high_entropy_lime_cases():
+    num_models = 10
+    all_outputs = get_all_outputs(filename)[:num_models]
+    new_all_outputs = get_all_outputs(filename_new)[:num_models]
+    combins = list(combinations(range(num_models), 2))
+    max_jac_cases = []
+    good_cases = []
+    accuracy = [0, 0]
+    best_improvement = 0
+    # for test_num in range(len(all_outputs[0][0])):
+    for test_num in range(865, 866):
+        avg_jac = 0
+        avg_jac_new = 0
+        preds, preds_new = [], []
+        for comb in combins:
+            model_i, model_j = comb[0], comb[1]
+            # print(len(all_outputs[model_i][1]), test_num)
+            # print(all_outputs[model_i][1], test_num)
+            # import ipdb; ipdb.set_trace()
+            len_for_jac_comparison = int(
+                0.2 * len(all_outputs[model_i][2][test_num]))
+            expln_i, expln_j = all_outputs[model_i][2][test_num][
+                               0:len_for_jac_comparison], \
+                               all_outputs[model_j][2][test_num][
+                               0:len_for_jac_comparison]
+            all_words = [x[0] for x in all_outputs[model_i][2][test_num]]
+            expln_i_words = [x[0] for x in expln_i]
+            # if "crimes" in all_words and "high" in all_words and "generic" in all_words:
+            #     print("here")
+            #     expl_old = all_outputs[model_i][2][test_num]
+            #     expl_new = new_all_outputs[model_i][2][test_num]
+
+            expln_j_words = [x[0] for x in expln_j]
+
+            expln_i_new, expln_j_new = new_all_outputs[model_i][2][test_num][
+                               0:len_for_jac_comparison], \
+                               new_all_outputs[model_j][2][test_num][
+                               0:len_for_jac_comparison]
+            expln_i_words_new = [x[0] for x in expln_i_new]
+            expln_j_words_new = [x[0] for x in expln_j_new]
+
+            jac_i = calculate_jaccard_similarity_score(expln_i_words, expln_j_words)
+            jac_i_new = calculate_jaccard_similarity_score(expln_i_words_new, expln_j_words_new)
+            avg_jac += jac_i
+            avg_jac_new += jac_i_new
+
+            preds.append(all_outputs[model_i][0][test_num])
+            preds_new.append(new_all_outputs[model_i][0][test_num])
+            if jac_i > 0.3:
+                max_jac_cases.append([test_num, model_i, model_j,
+                                          all_outputs[model_i][0][test_num],
+                                          all_outputs[model_j][0][test_num],
+                                          expln_i,
+                                          expln_j])
+    print(best_improvement)
+
 
 def do_analysis_on_test(test_num):
     num_models = 10
@@ -188,14 +246,15 @@ def do_analysis_on_test(test_num):
         print('new', sorted_vec2, '\n\n')
 
 
-filename = '../all-pkl-files/stability-outputs-[0,0,0,0][1,1024,2**30,43,789,1537,7771,2**18,99999,13]tanhimdblstm1.pkl'
-filename_new = '../all-pkl-files/stability-outputs-[1,1,1,1][1,1024,2**30,43,789,1537,7771,2**18,99999,13]tanhimdblstm1.pkl'
+filename = '../all-pkl-files/lime-outputs-[0,0,0,0][1,1024,2**30,43,789,1537,7771,2**18,99999,13]tanhsstcnn1.pkl'
+filename_new = '../all-pkl-files/lime-outputs-[1,1,1,1][1,1024,2**30,43,789,1537,7771,2**18,99999,13]tanhsstcnn1.pkl'
 
-vec = pickle.load(open('../preprocess/IMDB/vec_imdb.p', 'rb'))
+vec = pickle.load(open('../preprocess/SST/vec_sst.p', 'rb'))
 Xt, yt = vec.seq_text['test'], vec.label['test']
+Xt, yt = filterbylength(Xt, yt, min_length=5)
 # Xt, yt = filterbylength(Xt, yt, min_length=5, max_length=100)
-Xt, yt = filterbylength(Xt, yt, min_length=6)
+# Xt, yt = filterbylength(Xt, yt, min_length=6)
 # Xt, yt = filterbylength(Xt, yt)
 Xt, yt = sortbylength(Xt, yt)
-get_high_entropy_cases()
+get_high_entropy_lime_cases()
 # do_analysis_on_test(1553)
