@@ -22,7 +22,7 @@ from .modelUtils import jsd as js_divergence
 file_name = os.path.abspath(__file__)
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 import pickle
-dataset_vec = pickle.load(open('./preprocess/MIMIC/vec_diabetes.p', 'rb'))
+dataset_vec = pickle.load(open('./preprocess/SST/vec_sst.p', 'rb'))
 
 from lime.lime_text import LimeTextExplainer
 
@@ -303,7 +303,7 @@ class Model() :
             exp = explainer.explain_instance(
                 text_instance=sentence,
                 classifier_fn=self.predictor,
-                num_features=max(60, len(data_i)),
+                num_features=len(data_i),
                 num_samples=5000).as_list()
             explanations.append(exp)
         return explanations
