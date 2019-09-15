@@ -258,7 +258,7 @@ class Model() :
             for i in range(len(pred)):
                 if math.isnan(pred[i][0]):
                     pred[i][0] = 0.5
-            outputs.append(pred)
+            outputs.extend(pred)
 
         ret_val = [[output_i[0], 1-output_i[0]] for output_i in outputs]
         import ipdb; ipdb.set_trace()
