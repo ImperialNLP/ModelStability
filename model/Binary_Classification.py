@@ -244,7 +244,7 @@ class Model() :
         outputs = []
         bsize = 512
         N = len(text_permutations)
-        for n in tqdm(range(0, N, bsize)) :
+        for n in range(0, N, bsize):
             torch.cuda.empty_cache()
             batch_doc = text_permutations[n:n+bsize]
             batch_data = BatchHolder(batch_doc)
