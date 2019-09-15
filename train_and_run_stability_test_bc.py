@@ -77,7 +77,11 @@ if __name__ == "__main__":
         all_outputs.append((preds, atns))
         all_outputs_lst.append((preds_lst, atns_lst))
 
-    run_settings_str = args.name + args.swa + args.seeds + str(
+    if len(seeds) > 10:
+        seeds_str = '100-seeds'
+    else:
+        seeds_str = args.seeds
+    run_settings_str = args.name + args.swa + seeds_str + str(
         args.attention) + str(args.dataset) + str(args.encoder) + str(args.temp)
     file_name = "stability-outputs-" + run_settings_str + ".pkl"
     pickle_to_file(all_outputs, file_name)
