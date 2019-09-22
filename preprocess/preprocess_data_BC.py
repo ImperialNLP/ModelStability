@@ -1,3 +1,7 @@
+import sys
+sys.path.append('/Users/apple/MEngProject/')
+sys.path.append('/data/rishabh/')
+sys.path.append('/home/ubuntu/')
 import argparse
 parser = argparse.ArgumentParser(description='Run Preprocessing on dataset')
 parser.add_argument('--data_file', type=str, required=True)
@@ -35,7 +39,7 @@ if args.word_vectors_type in ['fasttext.simple.300d', 'glove.840B.300d'] :
     vec.extract_embeddings_from_torchtext(args.word_vectors_type)
 elif args.word_vectors_type == 'mimic' :
     from gensim.models import KeyedVectors
-    model = KeyedVectors.load("../../MIMIC/mimic_embedding_model.wv")
+    model = KeyedVectors.load("./../MIMIC/mimic_embedding_model.wv")
     vec.extract_embeddings(model)
 elif args.word_vectors_type == 'pubmed' :
     from gensim.models import KeyedVectors

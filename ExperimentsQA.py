@@ -4,6 +4,18 @@ from Transparency.configurations import configurations_qa
 from Transparency.Trainers.TrainerQA import Trainer, Evaluator
 
 
+def train_dataset_and_get_atn_map(dataset, encoders, num_iters=15):
+    for e in encoders:
+        config = configurations_qa[e](dataset)
+        trainer = Trainer(dataset, config=config, _type=dataset.trainer_type)
+        trainer.train(dataset.train_data, dataset.dev_data, n_iters=num_iters,
+                      save_on_metric=dataset.save_on_metric)
+        # Get train losses as well?
+
+        evaluator = Evaluator(dataset, trainer.model.dirname)
+        _, attentions, scores = evaluator.evaluate(dataset.test_data, save_results=True)
+        return scores, attentions
+
 def train_dataset(dataset, config):
     try:
         config = configurations_qa[config](dataset)

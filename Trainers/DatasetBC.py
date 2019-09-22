@@ -46,6 +46,9 @@ class DataHolder() :
         data_kwargs = { key: [getattr(self, key)[i] for i in idxs] for key in self.attributes}
         return DataHolder(**data_kwargs)
 
+    def __len__(self):
+        return len(self.X)
+
 class Dataset() :
     def __init__(self, name, path, min_length=None, max_length=None, args=None) :
         self.name = name
@@ -75,6 +78,10 @@ class Dataset() :
             'roc_auc' : 'roc_auc', 
             'pr_auc' : 'pr_auc'
         }
+
+        swa_settings = eval(args.swa)
+        self.swa_settings = swa_settings
+        self.temperature = args.temp
 
         self.bsize = 32
         if args is not None and hasattr(args, 'output_dir') :

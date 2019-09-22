@@ -13,7 +13,7 @@ class Trainer() :
         best_metric = 0.0
         for i in tqdm(range(n_iters)) :
             self.model.train(train_data)
-            predictions, attentions = self.model.evaluate(test_data)
+            predictions, attentions, _ = self.model.evaluate(test_data)
             predictions = np.array(predictions)
             test_metrics = self.metrics(test_data.A, predictions)
             if self.display_metrics :
@@ -42,7 +42,7 @@ class Evaluator() :
         self.display_metrics = True
 
     def evaluate(self, test_data, save_results=False) :
-        predictions, attentions = self.model.evaluate(test_data)
+        predictions, attentions, scores = self.model.evaluate(test_data)
         predictions = np.array(predictions)
 
         test_metrics = self.metrics(test_data.A, predictions)
@@ -56,7 +56,7 @@ class Evaluator() :
 
         test_data.yt_hat = predictions
         test_data.attn_hat = attentions
-        return predictions, attentions
+        return predictions, attentions, np.array(scores)
 
     def permutation_experiment(self, test_data, force_run=False) :
         if force_run or not is_pdumped(self.model, 'permutations') :

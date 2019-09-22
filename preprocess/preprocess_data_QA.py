@@ -1,5 +1,9 @@
 import argparse
 
+import sys
+sys.path.append('/home/ubuntu/')
+sys.path.append('/data/rishabh/')
+
 parser = argparse.ArgumentParser(description="Run Preprocessing on dataset")
 parser.add_argument("--data_file", type=str, required=True)
 parser.add_argument("--output_file", type=str, required=True)

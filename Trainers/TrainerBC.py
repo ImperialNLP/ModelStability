@@ -39,6 +39,14 @@ class Trainer() :
             f.write(str(test_metrics) + '\n')
             f.close()
 
+            if i == (n_iters - 1):
+                print("Model Saved on LAST EPOCH", save_on_metric, metric)
+                last_ep_dirname = self.model.save_values(save_model=True, append_to_dir_name='LAST-EP')
+                print(last_ep_dirname)
+                last_ep_file = open(last_ep_dirname + '/epoch.txt', 'a')
+                last_ep_file.write(str(test_metrics) + '\n')
+                last_ep_file.close()
+            
 class Evaluator() :
     def __init__(self, dataset, dirname, _type='Single_Label') :
         Model = BC.Model
@@ -83,6 +91,11 @@ class Evaluator() :
         if force_run or not is_pdumped(self.model, 'gradients') :
             grads = self.model.gradient_mem(test_data.X)
             pdump(self.model, grads, 'gradients')
+
+    def gradient_experiment_get_grads(self, test_data) :
+        grads = self.model.gradient_mem(test_data.X)
+        # pdump(self.model, grads, 'gradients')
+        return grads
 
     def logodds_attention_experiment(self, test_data, logodds, save_results=False) :
         logodds_combined = defaultdict(float)

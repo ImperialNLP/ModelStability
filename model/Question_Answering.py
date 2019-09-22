@@ -17,6 +17,7 @@ from Transparency.model.modules.Decoder import AttnDecoderQA
 from Transparency.model.modules.Encoder import Encoder
 
 from .modelUtils import jsd as js_divergence
+from torchcontrib.optim import SWA
 
 file_name = os.path.abspath(__file__)
 
@@ -105,6 +106,11 @@ class Model() :
         self.time_str = time.ctime().replace(' ', '_')
         self.dirname = os.path.join(basepath, dirname, self.time_str)
 
+        self.swa_settings = configuration['training']['swa']
+        if self.swa_settings[0]:
+            self.swa_all_optim = SWA(self.optim)
+            self.running_norms = []
+
     @classmethod
     def init_from_config(cls, dirname, **kwargs) :
         config = json.load(open(dirname + '/config.json', 'r'))
@@ -112,6 +118,50 @@ class Model() :
         obj = cls(config)
         obj.load_values(dirname)
         return obj
+
+    def get_param_buffer_norms(self):
+        for p in self.swa_all_optim.param_groups[0]['params']:
+            param_state = self.swa_all_optim.state[p]
+            if 'swa_buffer' not in param_state:
+                self.swa_all_optim.update_swa()
+
+        norms = []
+        for p in np.array(self.swa_all_optim.param_groups[0]['params'])[
+            [1, 2, 5, 6, 10, 11, 14, 15, 18, 20, 24, 26]]:
+            param_state = self.swa_all_optim.state[p]
+            buf = np.squeeze(
+                param_state['swa_buffer'].cpu().numpy())
+            cur_state = np.squeeze(p.data.cpu().numpy())
+            norm = np.linalg.norm(buf - cur_state)
+            norms.append(norm)
+        if self.swa_settings[3] == 2:
+            return np.max(norms)
+        return np.mean(norms)
+
+    def total_iter_num(self):
+        return self.swa_all_optim.param_groups[0]['step_counter']
+
+    def iter_for_swa_update(self, iter_num):
+        return iter_num > self.swa_settings[1] \
+               and iter_num % self.swa_settings[2] == 0
+
+
+    def check_and_update_swa(self):
+        if self.iter_for_swa_update(self.total_iter_num()):
+            cur_step_diff_norm = self.get_param_buffer_norms()
+            if self.swa_settings[3] == 0:
+                self.swa_all_optim.update_swa()
+                return
+            if not self.running_norms:
+                running_mean_norm = 0
+            else:
+                running_mean_norm = np.mean(self.running_norms)
+
+            if cur_step_diff_norm > running_mean_norm:
+                self.swa_all_optim.update_swa()
+                self.running_norms = [cur_step_diff_norm]
+            elif cur_step_diff_norm > 0:
+                self.running_norms.append(cur_step_diff_norm)
 
     def train(self, train_data, train=True) :
         docs_in = train_data.P
@@ -163,11 +213,26 @@ class Model() :
                 loss += batch_data.reg_loss
 
             if train :
-                self.optim.zero_grad()
-                loss.backward()
-                self.optim.step()
+                if self.swa_settings[0]:
+                    self.check_and_update_swa()
+
+                    self.swa_all_optim.zero_grad()
+                    loss.backward()
+                    self.swa_all_optim.step()
+                else:
+                    self.optim.zero_grad()
+                    loss.backward()
+                    self.optim.step()
 
             loss_total += float(loss.data.cpu().item())
+        if self.swa_settings[0] and self.swa_all_optim.param_groups[0][
+            'step_counter'] > self.swa_settings[1]:
+            print("\nSWA swapping\n")
+            # self.attn_optim.swap_swa_sgd()
+            # self.encoder_optim.swap_swa_sgd()
+            # self.decoder_optim.swap_swa_sgd()
+            self.swa_all_optim.swap_swa_sgd()
+            self.running_norms = []
         return loss_total*bsize/N
 
     def evaluate(self, data) :
@@ -184,6 +249,7 @@ class Model() :
 
         outputs = []
         attns = []
+        scores = []
         for n in tqdm(range(0, N, bsize)) :
             torch.cuda.empty_cache()
             batch_doc = docs[n:n+bsize]
@@ -200,6 +266,7 @@ class Model() :
             self.Qencoder(batch_data.Q)
             self.decoder(batch_data)
 
+            prediction_scores = batch_data.predict.cpu().data.numpy()
             batch_data.predict = torch.argmax(batch_data.predict, dim=-1)
             if self.decoder.use_attention :
                 attn = batch_data.attn
@@ -207,13 +274,15 @@ class Model() :
 
             predict = batch_data.predict.cpu().data.numpy()
             outputs.append(predict)
-            
+            scores.append(prediction_scores)
+
             
 
         outputs = [x for y in outputs for x in y]
         attns = [x for y in attns for x in y]
-        
-        return outputs, attns
+        scores = [x for y in scores for x in y]
+
+        return outputs, attns, scores
 
     def save_values(self, use_dirname=None, save_model=True) :
         if use_dirname is not None :

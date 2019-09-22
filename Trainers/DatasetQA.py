@@ -61,6 +61,10 @@ class Dataset() :
         self.trainer_type = 'qa'
 
         self.bsize = 100
+
+        swa_settings = eval(args.swa)
+        self.swa_settings = swa_settings
+        self.temperature = args.temp
         
         if args is not None and hasattr(args, 'output_dir') :
             self.basepath = args.output_dir
