@@ -3,7 +3,7 @@
 This is the code for the paper: `On Model Stability as a Function of Random Seed` (adding link to the paper soon!) by Rishabh Jain and Dr. Pranava Madhyastha.
 It is forked from the [AttentionExplanation](https://github.com/successar/AttentionExplanation) repository.
 
-To run the experiments follow the steps mentioned in the [Prerequisites](#prerequisites), [Update](#update), [Binary Classification](to-run-binary-classification-tasks) and other sections.
+To run the experiments follow the steps mentioned in the [Prerequisites](#prerequisites), [Update](#update), [Binary Classification Tasks](Binary-Classification-Tasks) and other sections.
 
 To run the stability experiments with `NASWA`, you can run the following:
 `python3 train_and_run_stability_test_bc.py --dataset sst --output_dir outputs/ --attention dot --encoder lstm --swa [1,1,1,1];`
@@ -37,7 +37,7 @@ For example if your cloned repository reside in `/home/username/Transparency`, t
 
 3. Go to the `Transparency/preprocess` folder and follow the instructions to process datasets.
 
-## To run Binary Classification Tasks
+## Binary Classification Tasks
 
 1. From the main folder, run `python train_and_run_experiments_bc.py --dataset {dataset_name} --data_dir . --output_dir outputs/ --attention {attention_type} --encoder {encoder_type}`
 
