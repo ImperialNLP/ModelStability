@@ -1,6 +1,6 @@
 # Model Stability
 
-This is the code for the paper: `On Model Stability as a Function of Random Seed` (adding link to the paper soon!) by Rishabh Jain and Dr. Pranava Madhyastha.
+This is the code for the paper: `On Model Stability as a Function of Random Seed` (adding link to the paper soon!) by Rishabh Jain and Pranava Madhyastha.
 It is forked from the [AttentionExplanation](https://github.com/successar/AttentionExplanation) repository.
 
 To run the experiments follow the steps mentioned in the [Prerequisites](#prerequisites), [Update](#update), [Binary Classification Tasks](Binary-Classification-Tasks) and other sections.
